@@ -1,0 +1,109 @@
+{% extends "core/reportes/_base_reportes.html" %}
+{% block titulo_reporte %}Ventas por mes{% endblock %}
+
+{% block reporte %}
+<h1>🛒 Ventas por mes</h1>
+<p class="sub">
+  Ventas cerradas en el período, agrupadas por mes de venta.
+</p>
+
+<form method="get" class="rep-filtros" style="margin-top:16px">
+  <label>
+    Proyecto
+    <select name="proyecto">
+      <option value="">— Todos —</option>
+      {% for p in proyectos %}
+        <option value="{{ p.pk }}" {% if proyecto_id == p.pk|stringformat:"s" %}selected{% endif %}>
+          {{ p.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Vendedor
+    <select name="vendedor">
+      <option value="">— Todos —</option>
+      {% for v in vendedores %}
+        <option value="{{ v.pk }}" {% if vendedor_id == v.pk|stringformat:"s" %}selected{% endif %}>
+          {{ v.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Rango
+    <select name="rango">
+      {% for r in opciones_rango %}
+        <option value="{{ r }}" {% if rango == r %}selected{% endif %}>
+          Últimos {{ r }} mes{% if r != 1 %}es{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Aplicar</button>
+  {% if proyecto_id or vendedor_id or rango != 6 %}
+    <a href="{% url 'reporte_ventas_mes' %}"
+       style="background:#68758a;color:#fff;padding:9px 16px;border-radius:7px;text-decoration:none;">
+      Limpiar
+    </a>
+  {% endif %}
+</form>
+
+<div class="rep-cards">
+  <div class="rep-card">
+    <div class="sub">Ventas</div>
+    <div class="metric">{{ total_ventas }}</div>
+    <div class="detalle">En el período seleccionado</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Monto total</div>
+    <div class="metric">${{ monto_total|floatformat:2 }}</div>
+    <div class="detalle">Suma de precios finales</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Contado</div>
+    <div class="metric">${{ total_contado|floatformat:2 }}</div>
+    <div class="detalle">{{ n_contado }} venta{% if n_contado != 1 %}s{% endif %} al contado</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Crédito</div>
+    <div class="metric">${{ total_credito|floatformat:2 }}</div>
+    <div class="detalle">{{ n_credito }} venta{% if n_credito != 1 %}s{% endif %} a crédito</div>
+  </div>
+</div>
+
+<div class="rep-tabla-card">
+  <h2>Detalle por mes</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Mes</th>
+        <th class="num">Nº ventas</th>
+        <th class="num">Contado</th>
+        <th class="num">Crédito</th>
+        <th class="num">Total del mes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in filas %}
+        <tr>
+          <td>{{ f.mes|date:"F Y"|capfirst }}</td>
+          <td class="num">{{ f.n_ventas }}</td>
+          <td class="num">${{ f.monto_contado|floatformat:2 }}</td>
+          <td class="num">${{ f.monto_credito|floatformat:2 }}</td>
+          <td class="num"><strong>${{ f.monto_total|floatformat:2 }}</strong></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr class="total-row">
+        <td>Total del período</td>
+        <td class="num">{{ total_ventas }}</td>
+        <td class="num">${{ total_contado|floatformat:2 }}</td>
+        <td class="num">${{ total_credito|floatformat:2 }}</td>
+        <td class="num">${{ monto_total|floatformat:2 }}</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+{% endblock %}

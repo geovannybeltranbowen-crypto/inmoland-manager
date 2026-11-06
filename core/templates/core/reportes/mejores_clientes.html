@@ -1,0 +1,105 @@
+{% extends "core/reportes/_base_reportes.html" %}
+{% block titulo_reporte %}Mejores clientes{% endblock %}
+
+{% block reporte %}
+<h1>⭐ Mejores clientes</h1>
+<p class="sub">
+  Top 20 clientes por monto pagado (entradas + cuotas) en el período.
+</p>
+
+<form method="get" class="rep-filtros" style="margin-top:16px">
+  <label>
+    Proyecto
+    <select name="proyecto">
+      <option value="">— Todos —</option>
+      {% for p in proyectos %}
+        <option value="{{ p.pk }}" {% if proyecto_id == p.pk|stringformat:"s" %}selected{% endif %}>
+          {{ p.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Rango
+    <select name="rango">
+      {% for r in opciones_rango %}
+        <option value="{{ r }}" {% if rango == r %}selected{% endif %}>
+          Últimos {{ r }} mes{% if r != 1 %}es{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Aplicar</button>
+  {% if proyecto_id or rango != 12 %}
+    <a href="{% url 'reporte_mejores_clientes' %}"
+       style="background:#68758a;color:#fff;padding:9px 16px;border-radius:7px;text-decoration:none;">
+      Limpiar
+    </a>
+  {% endif %}
+</form>
+
+<div class="rep-cards">
+  <div class="rep-card">
+    <div class="sub">Clientes activos</div>
+    <div class="metric">{{ n_clientes }}</div>
+    <div class="detalle">Con ventas en el período</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Mejor cliente</div>
+    <div class="metric" style="font-size:16px;">{{ mejor_cliente.nombre|default:"—" }}</div>
+    <div class="detalle">
+      {% if mejor_cliente %}
+        ${{ mejor_cliente.total_pagado|floatformat:2 }} pagado
+      {% else %}
+        Sin datos
+      {% endif %}
+    </div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Promedio pagado</div>
+    <div class="metric">${{ promedio_pagado|floatformat:2 }}</div>
+    <div class="detalle">Por cliente</div>
+  </div>
+</div>
+
+<div class="rep-tabla-card">
+  <h2>Ranking de clientes</h2>
+  {% if clientes %}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Cliente</th>
+          <th>Identificación</th>
+          <th class="num">Ventas</th>
+          <th class="num">Total pagado</th>
+          <th class="num">Cumplimiento</th>
+          <th>Última compra</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in clientes %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td><strong>{{ c.nombre }}</strong></td>
+            <td>{{ c.identificacion }}</td>
+            <td class="num">{{ c.n_ventas }}</td>
+            <td class="num">${{ c.total_pagado|floatformat:2 }}</td>
+            <td class="num">
+              <span class="badge {% if c.cumplimiento >= 80 %}b-paid{% elif c.cumplimiento >= 50 %}b-partial{% else %}b-overdue{% endif %}">
+                {{ c.cumplimiento|floatformat:0 }}%
+              </span>
+              <div style="font-size:11px;color:#68758a;">
+                {{ c.cuotas_pagadas }}/{{ c.cuotas_total }} cuotas
+              </div>
+            </td>
+            <td>{{ c.ultima_compra|date:"d/m/Y" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="vacio">No hay clientes con ventas en el período seleccionado.</p>
+  {% endif %}
+</div>
+{% endblock %}

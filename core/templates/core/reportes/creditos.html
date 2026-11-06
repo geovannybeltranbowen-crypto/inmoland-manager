@@ -1,0 +1,106 @@
+{% extends "core/reportes/_base_reportes.html" %}
+{% block titulo_reporte %}Créditos{% endblock %}
+
+{% block reporte %}
+<h1>💳 Créditos</h1>
+<p class="sub">
+  Financiado, cobrado y pendiente de las ventas a crédito.
+</p>
+
+<form method="get" class="rep-filtros" style="margin-top:16px">
+  <label>
+    Proyecto
+    <select name="proyecto">
+      <option value="">— Todos —</option>
+      {% for p in proyectos %}
+        <option value="{{ p.pk }}" {% if proyecto_id == p.pk|stringformat:"s" %}selected{% endif %}>
+          {{ p.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Aplicar filtro</button>
+  {% if proyecto_id %}
+    <a href="{% url 'reporte_creditos' %}"
+       style="background:#68758a;color:#fff;padding:9px 16px;border-radius:7px;text-decoration:none;">
+      Limpiar
+    </a>
+  {% endif %}
+</form>
+
+<div class="rep-cards">
+  <div class="rep-card">
+    <div class="sub">Total financiado</div>
+    <div class="metric">${{ total_financiado|floatformat:2 }}</div>
+    <div class="detalle">{{ n_ventas }} venta{% if n_ventas != 1 %}s{% endif %} a crédito</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Total cobrado</div>
+    <div class="metric" style="color:#1f6b3a;">${{ total_cobrado|floatformat:2 }}</div>
+    <div class="detalle">{{ porcentaje_cobrado|floatformat:2 }}% del financiado</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Pendiente de cobro</div>
+    <div class="metric" style="color:#8a1f1f;">${{ total_pendiente|floatformat:2 }}</div>
+    <div class="detalle">Saldo por cobrar en cuotas</div>
+  </div>
+</div>
+
+<div class="rep-tabla-card">
+  <h2>Por proyecto</h2>
+  {% if por_proyecto %}
+    <table>
+      <thead>
+        <tr>
+          <th>Proyecto</th>
+          <th class="num">Ventas</th>
+          <th class="num">Financiado</th>
+          <th class="num">Cobrado</th>
+          <th class="num">Pendiente</th>
+          <th class="num">% cobrado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in por_proyecto %}
+          <tr>
+            <td>{{ p.proyecto }}</td>
+            <td class="num">{{ p.n_ventas }}</td>
+            <td class="num">${{ p.financiado|floatformat:2 }}</td>
+            <td class="num">${{ p.cobrado|floatformat:2 }}</td>
+            <td class="num">${{ p.pendiente|floatformat:2 }}</td>
+            <td class="num">{{ p.porcentaje|floatformat:1 }}%</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="vacio">No hay ventas a crédito con los filtros actuales.</p>
+  {% endif %}
+</div>
+
+<div class="rep-tabla-card">
+  <h2>Proyección de cobros futuros (por mes de vencimiento)</h2>
+  {% if proyeccion %}
+    <table>
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th class="num">Cuotas</th>
+          <th class="num">Monto esperado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in proyeccion %}
+          <tr>
+            <td>{{ p.mes|date:"F Y"|capfirst }}</td>
+            <td class="num">{{ p.n_cuotas }}</td>
+            <td class="num">${{ p.monto|floatformat:2 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="vacio">No hay cuotas futuras pendientes de cobro.</p>
+  {% endif %}
+</div>
+{% endblock %}

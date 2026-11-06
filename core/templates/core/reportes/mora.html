@@ -1,0 +1,105 @@
+{% extends "core/reportes/_base_reportes.html" %}
+{% block titulo_reporte %}Mora{% endblock %}
+
+{% block reporte %}
+<h1>⏰ Mora — Clientes con cuotas vencidas</h1>
+<p class="sub">
+  Cuotas con fecha de vencimiento anterior a hoy y saldo pendiente &gt; 0.
+</p>
+
+<form method="get" class="rep-filtros" style="margin-top:16px">
+  <label>
+    Proyecto
+    <select name="proyecto">
+      <option value="">— Todos —</option>
+      {% for p in proyectos %}
+        <option value="{{ p.pk }}" {% if proyecto_id == p.pk|stringformat:"s" %}selected{% endif %}>
+          {{ p.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Días mínimos de atraso
+    <select name="dias">
+      {% for d in opciones_dias %}
+        <option value="{{ d }}" {% if dias_min == d %}selected{% endif %}>
+          {% if d == 0 %}Todos{% else %}+{{ d }} días{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Aplicar filtro</button>
+  {% if proyecto_id or dias_min %}
+    <a href="{% url 'reporte_mora' %}"
+       style="background:#68758a;color:#fff;padding:9px 16px;border-radius:7px;text-decoration:none;">
+      Limpiar
+    </a>
+  {% endif %}
+</form>
+
+<div class="rep-cards">
+  <div class="rep-card">
+    <div class="sub">Total en mora</div>
+    <div class="metric">${{ total_en_mora|floatformat:2 }}</div>
+    <div class="detalle">Saldo vencido acumulado</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Clientes en mora</div>
+    <div class="metric">{{ n_clientes }}</div>
+    <div class="detalle">Clientes con al menos 1 cuota vencida</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Cuotas vencidas</div>
+    <div class="metric">{{ n_cuotas }}</div>
+    <div class="detalle">Cuotas con saldo &gt; 0 y fecha pasada</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Promedio por cliente</div>
+    <div class="metric">${{ promedio_por_cliente|floatformat:2 }}</div>
+    <div class="detalle">Deuda media en mora</div>
+  </div>
+</div>
+
+<div class="rep-tabla-card">
+  <h2>Clientes con mayor atraso</h2>
+  {% if clientes_mora %}
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Identificación</th>
+          <th>Cuota más antigua</th>
+          <th class="num">Días atraso</th>
+          <th class="num">Cuotas vencidas</th>
+          <th class="num">Monto en mora</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in clientes_mora %}
+          <tr>
+            <td>{{ c.nombre }}</td>
+            <td>{{ c.identificacion }}</td>
+            <td>{{ c.cuota_mas_vieja|date:"d/m/Y" }}</td>
+            <td class="num">
+              <span class="badge {% if c.dias_atraso > 60 %}b-overdue{% elif c.dias_atraso > 30 %}b-partial{% else %}b-pending{% endif %}">
+                {{ c.dias_atraso }}
+              </span>
+            </td>
+            <td class="num">{{ c.n_cuotas }}</td>
+            <td class="num">${{ c.total_mora|floatformat:2 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="5">Total</td>
+          <td class="num">${{ total_en_mora|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  {% else %}
+    <p class="vacio">¡Excelente! No hay clientes en mora con los filtros actuales.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "core/reportes/_base_reportes.html" %}
+{% block titulo_reporte %}Recaudación{% endblock %}
+
+{% block reporte %}
+<h1>📈 Recaudación por mes</h1>
+<p class="sub">
+  Entradas iniciales (abonos) + cuotas cobradas, agrupadas por mes.
+</p>
+
+<form method="get" class="rep-filtros" style="margin-top:16px">
+  <label>
+    Proyecto
+    <select name="proyecto">
+      <option value="">— Todos —</option>
+      {% for p in proyectos %}
+        <option value="{{ p.pk }}" {% if proyecto_id == p.pk|stringformat:"s" %}selected{% endif %}>
+          {{ p.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Rango
+    <select name="rango">
+      {% for r in opciones_rango %}
+        <option value="{{ r }}" {% if rango == r %}selected{% endif %}>
+          Últimos {{ r }} mes{% if r != 1 %}es{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Aplicar</button>
+  {% if proyecto_id or rango != 6 %}
+    <a href="{% url 'reporte_recaudacion' %}"
+       style="background:#68758a;color:#fff;padding:9px 16px;border-radius:7px;text-decoration:none;">
+      Limpiar
+    </a>
+  {% endif %}
+</form>
+
+<div class="rep-cards">
+  <div class="rep-card">
+    <div class="sub">Total recaudado</div>
+    <div class="metric">${{ total_recaudado|floatformat:2 }}</div>
+    <div class="detalle">Período seleccionado</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Entradas iniciales</div>
+    <div class="metric">${{ total_entradas|floatformat:2 }}</div>
+    <div class="detalle">Abonos al firmar la venta</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Cuotas cobradas</div>
+    <div class="metric">${{ total_cuotas|floatformat:2 }}</div>
+    <div class="detalle">Pagos mensuales</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Nº de pagos</div>
+    <div class="metric">{{ n_pagos }}</div>
+    <div class="detalle">Pagos registrados en el período</div>
+  </div>
+</div>
+
+<div class="rep-tabla-card">
+  <h2>Detalle por mes</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Mes</th>
+        <th class="num">Entradas iniciales</th>
+        <th class="num">Cuotas cobradas</th>
+        <th class="num">Total del mes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in filas %}
+        <tr>
+          <td>{{ f.mes|date:"F Y"|capfirst }}</td>
+          <td class="num">${{ f.entradas|floatformat:2 }}</td>
+          <td class="num">${{ f.cuotas|floatformat:2 }}</td>
+          <td class="num"><strong>${{ f.total|floatformat:2 }}</strong></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr class="total-row">
+        <td>Total del período</td>
+        <td class="num">${{ total_entradas|floatformat:2 }}</td>
+        <td class="num">${{ total_cuotas|floatformat:2 }}</td>
+        <td class="num">${{ total_recaudado|floatformat:2 }}</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+{% endblock %}

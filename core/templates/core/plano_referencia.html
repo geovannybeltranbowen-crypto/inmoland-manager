@@ -1,0 +1,233 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Planos de referencia | Inmoland</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #202a35;
+        }
+
+        .wrap {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #0000000d;
+        }
+
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        input, select, textarea, button {
+            width: 100%;
+            padding: 11px;
+            font: inherit;
+            border: 1px solid #cbd3dc;
+            border-radius: 7px;
+        }
+
+        button {
+            margin-top: 12px;
+            background: #174a75;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #103958;
+        }
+
+        .alert {
+            padding: 12px;
+            margin: 12px 0;
+            background: #e0f4e7;
+            border-radius: 7px;
+        }
+
+        .plan {
+            padding: 18px 0;
+            border-top: 1px solid #e1e6eb;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .link {
+            display: inline-block;
+            padding: 12px 16px;
+            border-radius: 7px;
+            background: #174a75;
+            color: white;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            background: #103958;
+        }
+
+        .download {
+            background: #e8edf2;
+            color: #202a35;
+        }
+
+        .note {
+            color: #5c6672;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<main class="wrap">
+
+    <section class="card">
+        <h1>PDF de referencia</h1>
+
+        <p>
+            Carga el plano PDF de un proyecto para consultarlo
+            cuando lo necesites. El documento no crea ni modifica
+            lotes automáticamente.
+        </p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="grid">
+                <label class="field">
+                    Proyecto
+                    <select name="project_id" required>
+                        {% for p in projects %}
+                            <option value="{{ p.pk }}">
+                                {{ p.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="field">
+                    Título del plano
+                    <input
+                        type="text"
+                        name="title"
+                        value="Plano de referencia"
+                    >
+                </label>
+
+                <label class="field">
+                    Archivo PDF
+                    <input
+                        type="file"
+                        name="pdf_file"
+                        accept=".pdf,application/pdf"
+                        required
+                    >
+                </label>
+            </div>
+
+            <p>
+                <label class="field">
+                    Notas
+                    <textarea
+                        name="notes"
+                        rows="3"
+                        placeholder="Descripción opcional del plano"
+                    ></textarea>
+                </label>
+            </p>
+
+            <button type="submit">Guardar PDF de referencia</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Planos guardados</h2>
+
+        {% for plan in plans %}
+            <article class="plan">
+                <h3>
+                    {{ plan.project.name }} — {{ plan.title }}
+                </h3>
+
+                <p class="note">
+                    Fecha de carga:
+                    {{ plan.uploaded_at|date:"d/m/Y H:i" }}
+                </p>
+
+                <div class="actions">
+                    <a
+                        class="link"
+                        href="{{ plan.pdf_file.url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Abrir PDF
+                    </a>
+
+                    <a
+                        class="link download"
+                        href="{{ plan.pdf_file.url }}"
+                        download
+                    >
+                        Descargar PDF
+                    </a>
+                </div>
+
+                <p class="note">
+                    El PDF se abre en una pestaña independiente.
+                    Para visualizarlo, pulsa «Abrir PDF».
+                </p>
+            </article>
+        {% empty %}
+            <p>Aún no hay planos PDF guardados.</p>
+        {% endfor %}
+    </section>
+
+</main>
+</body>
+</html>

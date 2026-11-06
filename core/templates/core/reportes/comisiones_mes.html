@@ -1,0 +1,103 @@
+{% extends "core/reportes/_base_reportes.html" %}
+{% block titulo_reporte %}Comisiones por mes{% endblock %}
+
+{% block reporte %}
+<h1>🎁 Comisiones por mes</h1>
+<p class="sub">
+  Comisiones generadas por mes de venta, separadas por vendedor y estado.
+</p>
+
+<form method="get" class="rep-filtros" style="margin-top:16px">
+  <label>
+    Vendedor
+    <select name="vendedor">
+      <option value="">— Todos —</option>
+      {% for v in vendedores %}
+        <option value="{{ v.pk }}" {% if vendedor_id == v.pk|stringformat:"s" %}selected{% endif %}>
+          {{ v.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Rango
+    <select name="rango">
+      {% for r in opciones_rango %}
+        <option value="{{ r }}" {% if rango == r %}selected{% endif %}>
+          Últimos {{ r }} mes{% if r != 1 %}es{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Aplicar</button>
+  {% if vendedor_id or rango != 6 %}
+    <a href="{% url 'reporte_comisiones_mes' %}"
+       style="background:#68758a;color:#fff;padding:9px 16px;border-radius:7px;text-decoration:none;">
+      Limpiar
+    </a>
+  {% endif %}
+</form>
+
+<div class="rep-cards">
+  <div class="rep-card">
+    <div class="sub">Total comisiones</div>
+    <div class="metric">${{ total_comisiones|floatformat:2 }}</div>
+    <div class="detalle">{{ n_comisiones }} comisi{% if n_comisiones == 1 %}ón{% else %}ones{% endif %}</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Pagadas</div>
+    <div class="metric" style="color:#1f6b3a;">${{ total_pagado|floatformat:2 }}</div>
+    <div class="detalle">{{ n_pagado }} pagada{% if n_pagado != 1 %}s{% endif %}</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Habilitadas (por pagar)</div>
+    <div class="metric" style="color:#8a5a00;">${{ total_habilitado|floatformat:2 }}</div>
+    <div class="detalle">{{ n_habilitado }} habilitada{% if n_habilitado != 1 %}s{% endif %}</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Pendientes / bloqueadas</div>
+    <div class="metric" style="color:#8a1f1f;">${{ total_pendiente|floatformat:2 }}</div>
+    <div class="detalle">{{ n_pendiente }} pendiente{% if n_pendiente != 1 %}s{% endif %}</div>
+  </div>
+</div>
+
+<div class="rep-tabla-card">
+  <h2>Detalle por mes y vendedor</h2>
+  {% if filas %}
+    <table>
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th>Vendedor</th>
+          <th class="num">Nº comisiones</th>
+          <th class="num">Total</th>
+          <th class="num">Pagado</th>
+          <th class="num">Por pagar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in filas %}
+          <tr>
+            <td>{{ f.mes|date:"F Y"|capfirst }}</td>
+            <td>{{ f.seller__name }}</td>
+            <td class="num">{{ f.n_comisiones }}</td>
+            <td class="num"><strong>${{ f.total|floatformat:2 }}</strong></td>
+            <td class="num">${{ f.monto_pagado|floatformat:2 }}</td>
+            <td class="num">${{ f.monto_pendiente|floatformat:2 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="3">Total del período</td>
+          <td class="num">${{ total_comisiones|floatformat:2 }}</td>
+          <td class="num">${{ total_pagado|floatformat:2 }}</td>
+          <td class="num">${{ total_pendiente|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  {% else %}
+    <p class="vacio">No hay comisiones registradas en el período seleccionado.</p>
+  {% endif %}
+</div>
+{% endblock %}

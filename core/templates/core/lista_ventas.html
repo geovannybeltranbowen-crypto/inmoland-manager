@@ -1,0 +1,145 @@
+
+{% extends "base.html" %}
+
+{% block title %}Gestión de ventas · INMOLAND{% endblock %}
+
+{% block content %}
+<h1>Gestión de ventas</h1>
+<p class="sub">Consulta y filtra las ventas registradas en los proyectos.</p>
+
+<div style="margin:18px 0">
+    <a class="btn" href="/">Volver al panel</a>
+</div>
+
+<div class="card" style="margin-bottom:20px">
+    <h2>Filtros de búsqueda</h2>
+
+    <form method="get">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+
+            <label>Proyecto
+                <select name="proyecto">
+                    <option value="">Todos los proyectos</option>
+                    {% for proyecto in proyectos %}
+                    <option value="{{ proyecto.id }}"
+                    {% if filtros.proyecto == proyecto.id|stringformat:"s" %}selected{% endif %}>
+                        {{ proyecto.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>Estado del lote
+                <select name="estado">
+                    <option value="">Todos los estados</option>
+                    {% for valor, etiqueta in estados_lote %}
+                    <option value="{{ valor }}"
+                    {% if filtros.estado == valor %}selected{% endif %}>
+                        {{ etiqueta }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>Cliente
+                <input type="text" name="cliente"
+                       value="{{ filtros.cliente }}"
+                       placeholder="Nombre o apellido">
+            </label>
+
+            <label>Vendedor
+                <select name="vendedor">
+                    <option value="">Todos los vendedores</option>
+                    {% for vendedor in vendedores %}
+                    <option value="{{ vendedor.id }}"
+                    {% if filtros.vendedor == vendedor.id|stringformat:"s" %}selected{% endif %}>
+                        {{ vendedor.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>Modalidad
+                <select name="modalidad">
+                    <option value="">Todas las modalidades</option>
+                    <option value="cash" {% if filtros.modalidad == "cash" %}selected{% endif %}>Contado</option>
+                    <option value="credit" {% if filtros.modalidad == "credit" %}selected{% endif %}>Crédito directo</option>
+                </select>
+            </label>
+
+            <label>Desde
+                <input type="date" name="desde" value="{{ filtros.desde }}">
+            </label>
+
+            <label>Hasta
+                <input type="date" name="hasta" value="{{ filtros.hasta }}">
+            </label>
+        </div>
+
+        <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" type="submit">Aplicar filtros</button>
+            <a class="btn" href="/ventas/" style="background:#68758a">Limpiar filtros</a>
+        </div>
+    </form>
+</div>
+
+<div class="cards">
+    <div class="card">
+        <div class="sub">Ventas encontradas</div>
+        <div class="metric">{{ total_ventas }}</div>
+    </div>
+    <div class="card">
+        <div class="sub">Cobros recibidos en esas ventas</div>
+        <div class="metric">${{ total_cobrado|floatformat:2 }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Listado de ventas</h2>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Proyecto</th>
+                    <th>Cuadra</th>
+                    <th>Lote</th>
+                    <th>Cliente</th>
+                    <th>Vendedor</th>
+                    <th>Modalidad</th>
+                    <th>Precio final</th>
+                    <th>Abono inicial</th>
+                    <th>Total pagado</th>
+                    <th>Saldo</th>
+                    <th>Estado del lote</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ventas %}
+                <tr>
+                    <td>{{ venta.sale_date|date:"d/m/Y" }}</td>
+                    <td>{{ venta.lot.project.name }}</td>
+                    <td>{{ venta.lot.block|default:"—" }}</td>
+                    <td>{{ venta.lot.number }}</td>
+                    <td>{{ venta.client }}</td>
+                    <td>{{ venta.seller.name }}</td>
+                    <td>{{ venta.get_sale_type_display }}</td>
+                    <td>${{ venta.final_price|floatformat:2 }}</td>
+                    <td>${{ venta.initial_payment|floatformat:2 }}</td>
+                    <td>${{ venta.total_pagado_calculado|floatformat:2 }}</td>
+                    <td>${{ venta.saldo_pendiente|floatformat:2 }}</td>
+                    <td>{{ venta.lot.get_status_display }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="12" class="sub">
+                        No se encontraron ventas con los filtros seleccionados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

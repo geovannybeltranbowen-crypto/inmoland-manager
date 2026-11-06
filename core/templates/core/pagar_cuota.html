@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}Pagar cuota · INMOLAND{% endblock %}
+
+{% block content %}
+<style>
+  .pago-wrap { max-width: 820px; margin: 0 auto; }
+  .pago-card {
+    background: #fff; border: 1px solid #e5e9f1; border-radius: 14px;
+    padding: 22px; margin-bottom: 18px; box-shadow: 0 3px 12px #13213b08;
+  }
+  .pago-grid {
+    display: grid; grid-template-columns: 1fr auto; gap: 10px 18px;
+    margin: 0;
+  }
+  .pago-grid dt { color: #68758a; }
+  .pago-grid dd { margin: 0; text-align: right; font-weight: 600; }
+  .pago-form label { display: block; font-weight: 600; margin-top: 12px; }
+  .pago-form input, .pago-form textarea {
+    width: 100%; padding: 10px; border: 1px solid #ccd4e0;
+    border-radius: 8px; font: inherit; margin-top: 5px;
+  }
+  .pago-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .btn-secondary { background: #68758a; }
+  .btn-danger { background: #b83a3a; }
+  .btn-danger:hover { background: #962c2c; }
+  .alert-err { background: #fdecea; color: #8a1f1f; padding: 10px 14px; border-radius: 8px; margin: 8px 0; }
+  .alert-ok { background: #e0f4e7; color: #1f6b3a; padding: 10px 14px; border-radius: 8px; margin: 8px 0; }
+  .saldo-big { font-size: 22px; color: #12233f; }
+  .estado-pill {
+    display: inline-block; padding: 3px 10px; border-radius: 99px;
+    font-size: 12px; font-weight: 700;
+  }
+  .estado-pending  { background: #eef3ff; color: #244f98; }
+  .estado-partial  { background: #fff2d4; color: #8a5a00; }
+  .estado-paid     { background: #e0f4e7; color: #1f6b3a; }
+  .estado-overdue  { background: #fdecea; color: #8a1f1f; }
+  table.pagos { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.pagos th, table.pagos td {
+    text-align: left; padding: 8px 6px; border-bottom: 1px solid #edf0f5;
+  }
+  table.pagos th { color: #68758a; font-weight: 650; }
+  .muted { color: #68758a; }
+</style>
+
+<div class="pago-wrap">
+  <h1>Registrar pago de cuota</h1>
+  <p class="muted">
+    Venta: <strong>{{ cuota.sale }}</strong> ·
+    Proyecto: <strong>{{ cuota.sale.lot.project.name }}</strong>
+  </p>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="{% if message.tags == 'success' %}alert-ok{% else %}alert-err{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- ===== Datos de la cuota ===== -->
+  <div class="pago-card">
+    <h2>Cuota {{ cuota.number }}</h2>
+    <dl class="pago-grid">
+      <dt>Lote</dt>
+      <dd>{{ cuota.sale.lot.number }}{% if cuota.sale.lot.block %} · {{ cuota.sale.lot.block }}{% endif %}</dd>
+
+      <dt>Cliente</dt>
+      <dd>{{ cuota.sale.client }}</dd>
+
+      <dt>Vencimiento</dt>
+      <dd>{{ cuota.due_date|date:"d/m/Y" }}</dd>
+
+      <dt>Estado</dt>
+      <dd>
+        <span class="estado-pill estado-{{ cuota.status }}">
+          {{ cuota.get_status_display }}
+        </span>
+      </dd>
+
+      <dt>Importe total de la cuota</dt>
+      <dd>${{ cuota.amount|floatformat:2 }}</dd>
+
+      <dt>Capital</dt>
+      <dd>${{ cuota.principal_amount|floatformat:2 }}</dd>
+
+      <dt>Interés</dt>
+      <dd>${{ cuota.interest_amount|floatformat:2 }}</dd>
+
+      <dt>Pagado en esta cuota</dt>
+      <dd>${{ total_pagado_cuota|floatformat:2 }}</dd>
+
+      <dt><strong>Saldo pendiente</strong></dt>
+      <dd class="saldo-big">${{ saldo|floatformat:2 }}</dd>
+    </dl>
+  </div>
+
+  <!-- ===== Formulario ===== -->
+  {% if saldo > 0 %}
+    <div class="pago-card">
+      <h2>Nuevo pago</h2>
+      <form method="post" class="pago-form">
+        {% csrf_token %}
+
+        <label for="payment_date">Fecha de pago</label>
+        <input type="date" id="payment_date" name="payment_date"
+               value="{{ hoy }}" required>
+
+        <label for="amount">Monto (USD)</label>
+        <input type="number" id="amount" name="amount" step="0.01" min="0.01"
+               max="{{ saldo }}" placeholder="Ej. {{ saldo }}" required>
+
+        <label for="reference">Referencia / comprobante (opcional)</label>
+        <input type="text" id="reference" name="reference"
+               placeholder="Ej. transferencia 1234, efectivo...">
+
+        <label for="notes">Notas (opcional)</label>
+        <textarea id="notes" name="notes" rows="2"></textarea>
+
+        <div class="pago-actions">
+          <button type="submit" class="btn">Guardar pago</button>
+          <a href="/admin/core/installment/" class="btn btn-secondary">Volver al listado</a>
+        </div>
+      </form>
+    </div>
+  {% else %}
+    <div class="pago-card">
+      <p class="alert-ok">Esta cuota ya está totalmente pagada.</p>
+      <a href="/admin/core/installment/" class="btn btn-secondary">Volver al listado</a>
+    </div>
+  {% endif %}
+
+  <!-- ===== Historial de pagos ===== -->
+  <div class="pago-card">
+    <h2>Pagos registrados en esta cuota</h2>
+    {% if pagos_existentes %}
+      <table class="pagos">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Monto</th>
+            <th>Referencia</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pago in pagos_existentes %}
+            <tr>
+              <td>{{ pago.payment_date|date:"d/m/Y" }}</td>
+              <td>${{ pago.amount|floatformat:2 }}</td>
+              <td>{{ pago.reference|default:"—" }}</td>
+              <td>
+                <form method="post"
+                      action="{% url 'anular_pago' pago.pk %}"
+                      onsubmit="return confirm('¿Seguro que quieres anular este pago de ${{ pago.amount }}? Se recalculará el estado de la cuota.');"
+                      style="margin:0">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">Anular</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">Todavía no hay pagos registrados en esta cuota.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

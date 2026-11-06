@@ -1,0 +1,83 @@
+{% extends "core/reportes/_base_reportes.html" %}
+{% block titulo_reporte %}Reportes{% endblock %}
+
+{% block reporte %}
+<h1>Reportes</h1>
+<p class="sub">Informes operativos de INMOLAND Manager.</p>
+
+<div class="rep-cards" style="margin-top:22px">
+
+  <div class="rep-card">
+    <div class="sub">Cartera (me deben)</div>
+    <div class="metric">R1</div>
+    <div class="detalle">Cuánto falta cobrar, por proyecto y estado.</div>
+    <div style="margin-top:10px">
+      <a href="{% url 'reporte_cartera' %}" class="btn">Abrir</a>
+    </div>
+  </div>
+
+  <div class="rep-card">
+    <div class="sub">Mora</div>
+    <div class="metric">R2</div>
+    <div class="detalle">Clientes con cuotas vencidas y días de atraso.</div>
+    <div style="margin-top:10px">
+      <a href="{% url 'reporte_mora' %}" class="btn">Abrir</a>
+    </div>
+  </div>
+
+  <div class="rep-card">
+    <div class="sub">Recaudación</div>
+    <div class="metric">R3</div>
+    <div class="detalle">Cobros por mes (1, 3, 6 o 12 meses).</div>
+    <div style="margin-top:10px">
+      <a href="{% url 'reporte_recaudacion' %}" class="btn">Abrir</a>
+    </div>
+  </div>
+
+  <div class="rep-card">
+    <div class="sub">Ventas por mes</div>
+    <div class="metric">R6</div>
+    <div class="detalle">Nº ventas, monto, contado vs crédito.</div>
+    <div style="margin-top:10px">
+      <a href="{% url 'reporte_ventas_mes' %}" class="btn">Abrir</a>
+    </div>
+  </div>
+
+  <div class="rep-card">
+    <div class="sub">Comisiones por mes</div>
+    <div class="metric">R7</div>
+    <div class="detalle">Generadas, pagadas y pendientes por vendedor.</div>
+    <div style="margin-top:10px">
+      <a href="{% url 'reporte_comisiones_mes' %}" class="btn">Abrir</a>
+    </div>
+  </div>
+
+  <div class="rep-card">
+    <div class="sub">Créditos</div>
+    <div class="metric">R4</div>
+    <div class="detalle">Financiado vs. cobrado vs. pendiente.</div>
+    <div style="margin-top:10px">
+        <a href="{% url 'reporte_creditos' %}" class="btn">Abrir</a>
+    </div>
+  </div>
+
+  <div class="rep-card">
+    <div class="sub">Mejores clientes</div>
+    <div class="metric">R5</div>
+    <div class="detalle">Top por monto pagado y cumplimiento.</div>
+    <div style="margin-top:10px">
+        <a href="{% url 'reporte_mejores_clientes' %}" class="btn">Abrir</a>
+    </div>
+  </div>
+
+  <div class="rep-card">
+    <div class="sub">SRI</div>
+    <div class="metric">SRI</div>
+    <div class="detalle">Valores vendidos por mes (base imponible).</div>
+    <div style="margin-top:10px">
+      <a href="{% url 'reporte_sri' %}" class="btn">Abrir</a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "core/reportes/_base_reportes.html" %}
+{% block titulo_reporte %}Cartera{% endblock %}
+
+{% block reporte %}
+<h1>💰 Cartera — Cuánto me deben</h1>
+<p class="sub">
+  Saldo pendiente de todas las cuotas no pagadas al 100% (pendientes, parciales y vencidas).
+</p>
+
+<!-- Filtro -->
+<form method="get" class="rep-filtros" style="margin-top:16px">
+  <label>
+    Proyecto
+    <select name="proyecto">
+      <option value="">— Todos los proyectos —</option>
+      {% for p in proyectos %}
+        <option value="{{ p.pk }}" {% if proyecto_id == p.pk|stringformat:"s" %}selected{% endif %}>
+          {{ p.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Aplicar filtro</button>
+  {% if proyecto_id %}
+    <a href="{% url 'reporte_cartera' %}" class="btn btn-sec"
+       style="background:#68758a;color:#fff;padding:9px 16px;border-radius:7px;text-decoration:none;">
+      Limpiar
+    </a>
+  {% endif %}
+</form>
+
+<!-- Tarjetas resumen -->
+<div class="rep-cards">
+  <div class="rep-card">
+    <div class="sub">Total por cobrar</div>
+    <div class="metric">${{ total_por_cobrar|floatformat:2 }}</div>
+    <div class="detalle">Suma de saldos pendientes</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Cuotas pendientes</div>
+    <div class="metric">{{ n_cuotas }}</div>
+    <div class="detalle">Cuotas con saldo &gt; 0</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Promedio por cuota</div>
+    <div class="metric">
+      {% if n_cuotas %}
+        ${% widthratio total_por_cobrar 1 n_cuotas as prom %}{{ prom|floatformat:2 }}
+      {% else %}
+        $0.00
+      {% endif %}
+    </div>
+    <div class="detalle">Saldo medio por cuota</div>
+  </div>
+</div>
+
+<!-- Tabla por proyecto -->
+<div class="rep-tabla-card">
+  <h2>Por proyecto</h2>
+  {% if por_proyecto %}
+    <table>
+      <thead>
+        <tr>
+          <th>Proyecto</th>
+          <th class="num">Cuotas</th>
+          <th class="num">Saldo por cobrar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in por_proyecto %}
+          <tr>
+            <td>{{ fila.sale__lot__project__name }}</td>
+            <td class="num">{{ fila.n_cuotas }}</td>
+            <td class="num">${{ fila.total|floatformat:2 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td>Total</td>
+          <td class="num">{{ n_cuotas }}</td>
+          <td class="num">${{ total_por_cobrar|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  {% else %}
+    <p class="vacio">No hay cuotas pendientes con los filtros actuales.</p>
+  {% endif %}
+</div>
+
+<!-- Tabla por estado -->
+<div class="rep-tabla-card">
+  <h2>Por estado de cuota</h2>
+  {% if por_estado %}
+    <table>
+      <thead>
+        <tr>
+          <th>Estado</th>
+          <th class="num">Cuotas</th>
+          <th class="num">Saldo por cobrar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in por_estado %}
+          <tr>
+            <td>
+              <span class="badge b-{{ fila.codigo }}">{{ fila.etiqueta }}</span>
+            </td>
+            <td class="num">{{ fila.n_cuotas }}</td>
+            <td class="num">${{ fila.total|floatformat:2 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="vacio">Sin datos.</p>
+  {% endif %}
+</div>
+
+<!-- Top clientes -->
+<div class="rep-tabla-card">
+  <h2>Top 20 clientes que más deben</h2>
+  {% if por_cliente %}
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Identificación</th>
+          <th class="num">Cuotas</th>
+          <th class="num">Saldo por cobrar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in por_cliente %}
+          <tr>
+            <td>{{ fila.sale__client__first_name }} {{ fila.sale__client__last_name }}</td>
+            <td>{{ fila.sale__client__identification|default:"—" }}</td>
+            <td class="num">{{ fila.n_cuotas }}</td>
+            <td class="num">${{ fila.total|floatformat:2 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="vacio">Sin datos.</p>
+  {% endif %}
+</div>
+{% endblock %}

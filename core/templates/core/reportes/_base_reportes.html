@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}{% block titulo_reporte %}Reportes{% endblock %} · INMOLAND{% endblock %}
+
+{% block content %}
+<style>
+  .rep-layout { display: grid; grid-template-columns: 220px 1fr; gap: 22px; margin-top: 12px; }
+  .rep-menu {
+    background: #fff; border: 1px solid #e5e9f1; border-radius: 14px;
+    padding: 14px; height: fit-content; position: sticky; top: 14px;
+  }
+  .rep-menu h3 { margin: 0 0 10px; font-size: 13px; color: #68758a;
+                 text-transform: uppercase; letter-spacing: .5px; }
+  .rep-menu a {
+    display: block; padding: 8px 10px; border-radius: 8px;
+    color: #243047; text-decoration: none; font-size: 14px; margin-bottom: 4px;
+  }
+  .rep-menu a:hover { background: #f0f4fa; }
+  .rep-menu a.active { background: #2157a5; color: #fff; }
+  .rep-main { min-width: 0; }
+  .rep-main h1 { margin-top: 0; }
+  .rep-filtros {
+    background: #fff; border: 1px solid #e5e9f1; border-radius: 14px;
+    padding: 14px 18px; margin-bottom: 18px; display: flex; flex-wrap: wrap;
+    gap: 12px; align-items: end;
+  }
+  .rep-filtros label { display: flex; flex-direction: column; font-weight: 600;
+                       font-size: 13px; gap: 4px; }
+  .rep-filtros select, .rep-filtros input {
+    padding: 8px 10px; border: 1px solid #ccd4e0; border-radius: 7px;
+    font: inherit; min-width: 140px;
+  }
+  .rep-filtros button {
+    background: #2157a5; color: #fff; border: 0; padding: 9px 16px;
+    border-radius: 7px; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  .rep-filtros .btn-sec { background: #68758a; }
+  .rep-cards {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px; margin-bottom: 18px;
+  }
+  .rep-card {
+    background: #fff; border: 1px solid #e5e9f1; border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .rep-card .sub { color: #68758a; font-size: 13px; }
+  .rep-card .metric { font-size: 24px; font-weight: 800; color: #12233f;
+                      margin-top: 4px; }
+  .rep-card .detalle { color: #68758a; font-size: 12px; margin-top: 4px; }
+  .rep-tabla-card {
+    background: #fff; border: 1px solid #e5e9f1; border-radius: 14px;
+    padding: 18px; margin-bottom: 18px;
+  }
+  .rep-tabla-card h2 { margin-top: 0; }
+  .rep-tabla-card table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .rep-tabla-card th, .rep-tabla-card td {
+    text-align: left; padding: 8px 6px; border-bottom: 1px solid #edf0f5;
+  }
+  .rep-tabla-card th { color: #68758a; font-weight: 650; background: #f9fafc; }
+  .rep-tabla-card tr:last-child td { border-bottom: 0; }
+  .rep-tabla-card .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .rep-tabla-card .total-row td { font-weight: 700; border-top: 2px solid #e5e9f1; }
+  .badge {
+    display: inline-block; padding: 2px 9px; border-radius: 99px;
+    font-size: 12px; font-weight: 700;
+  }
+  .b-pending  { background: #eef3ff; color: #244f98; }
+  .b-partial  { background: #fff2d4; color: #8a5a00; }
+  .b-overdue  { background: #fdecea; color: #8a1f1f; }
+  .b-paid     { background: #e0f4e7; color: #1f6b3a; }
+  .b-cash     { background: #e8f2ff; color: #174a75; }
+  .b-credit   { background: #f5eaff; color: #5a2a8a; }
+  .vacio { color: #68758a; padding: 20px; text-align: center; }
+  @media (max-width: 850px) {
+    .rep-layout { grid-template-columns: 1fr; }
+    .rep-menu { position: static; }
+  }
+</style>
+
+<div class="rep-layout">
+  <nav class="rep-menu">
+    <h3>Reportes</h3>
+    <a href="{% url 'reportes_index' %}"
+       class="{% if request.resolver_match.url_name == 'reportes_index' %}active{% endif %}">
+      🏠 Inicio
+    </a>
+    <a href="{% url 'reporte_cartera' %}"
+       class="{% if request.resolver_match.url_name == 'reporte_cartera' %}active{% endif %}">
+      💰 Cartera (me deben)
+    </a>
+   <a href="{% url 'reporte_mora' %}"
+      class="{% if request.resolver_match.url_name == 'reporte_mora' %}active{% endif %}">
+     ⏰ Mora
+   </a>
+    <a href="{% url 'reporte_recaudacion' %}"
+       class="{% if request.resolver_match.url_name == 'reporte_recaudacion' %}active{% endif %}">
+       📈 Recaudación
+    </a>
+    <a href="{% url 'reporte_creditos' %}"
+       class="{% if request.resolver_match.url_name == 'reporte_creditos' %}active{% endif %}">
+       💳 Créditos
+    </a>
+    <a href="{% url 'reporte_mejores_clientes' %}"
+        class="{% if request.resolver_match.url_name == 'reporte_mejores_clientes' %}active{% endif %}">
+       ⭐ Mejores clientes
+    </a>
+    <a href="{% url 'reporte_ventas_mes' %}"
+      class="{% if request.resolver_match.url_name == 'reporte_ventas_mes' %}active{% endif %}">
+      🛒 Ventas por mes
+    </a>
+    <a href="{% url 'reporte_comisiones_mes' %}"
+       class="{% if request.resolver_match.url_name == 'reporte_comisiones_mes' %}active{% endif %}">
+      🎁 Comisiones por mes
+    </a>
+    <hr style="border:0;border-top:1px solid #e5e9f1;margin:12px 0">
+    <a href="{% url 'reporte_sri' %}"
+       class="{% if request.resolver_match.url_name == 'reporte_sri' %}active{% endif %}">
+      🧾 SRI
+    </a>
+  </nav>
+
+  <main class="rep-main">
+    {% block reporte %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "core/reportes/_base_reportes.html" %}
+{% block titulo_reporte %}SRI{% endblock %}
+
+{% block reporte %}
+<h1>🧾 SRI — Valores vendidos por mes</h1>
+<p class="sub">
+  Base imponible (valor vendido) agrupada por mes. Sin cálculo de IVA:
+  el contador aplica la tasa correspondiente.
+</p>
+
+<form method="get" class="rep-filtros" style="margin-top:16px">
+  <label>
+    Proyecto
+    <select name="proyecto">
+      <option value="">— Todos —</option>
+      {% for p in proyectos %}
+        <option value="{{ p.pk }}" {% if proyecto_id == p.pk|stringformat:"s" %}selected{% endif %}>
+          {{ p.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Desde
+    <input type="date" name="desde" value="{{ desde }}">
+  </label>
+  <label>
+    Hasta
+    <input type="date" name="hasta" value="{{ hasta }}">
+  </label>
+  <button type="submit">Aplicar</button>
+  {% if proyecto_id %}
+    <a href="{% url 'reporte_sri' %}"
+       style="background:#68758a;color:#fff;padding:9px 16px;border-radius:7px;text-decoration:none;">
+      Limpiar
+    </a>
+  {% endif %}
+  <a href="{% url 'reporte_sri_excel' %}?proyecto={{ proyecto_id }}&desde={{ desde }}&hasta={{ hasta }}"
+     style="background:#1f6b3a;color:#fff;padding:9px 16px;border-radius:7px;text-decoration:none;">
+    📥 Exportar Excel
+  </a>
+</form>
+
+<div class="rep-cards">
+  <div class="rep-card">
+    <div class="sub">Total ventas</div>
+    <div class="metric">{{ n_ventas }}</div>
+    <div class="detalle">En el período seleccionado</div>
+  </div>
+  <div class="rep-card">
+    <div class="sub">Valor vendido (base)</div>
+    <div class="metric">${{ valor_vendido|floatformat:2 }}</div>
+    <div class="detalle">Sin IVA</div>
+  </div>
+</div>
+
+<div class="rep-tabla-card">
+  <h2>Detalle por mes</h2>
+  {% if filas %}
+    <table>
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th class="num">Nº ventas</th>
+          <th class="num">Valor vendido (USD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in filas %}
+          <tr>
+            <td>{{ f.mes|date:"F Y"|capfirst }}</td>
+            <td class="num">{{ f.n_ventas }}</td>
+            <td class="num">${{ f.valor_vendido|floatformat:2 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td>Total del período</td>
+          <td class="num">{{ n_ventas }}</td>
+          <td class="num">${{ valor_vendido|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  {% else %}
+    <p class="vacio">No hay ventas en el período seleccionado.</p>
+  {% endif %}
+</div>
+{% endblock %}

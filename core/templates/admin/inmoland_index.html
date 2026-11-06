@@ -1,0 +1,43 @@
+{% extends "admin/index.html" %}
+{% block content %}
+{{ block.super }}
+<div class="module" style="margin-top: 20px;">
+  <h2>INMOLAND Manager</h2>
+  <table>
+    <tbody>
+      <tr>
+        <th scope="row">Plano de lotes</th>
+        <td>
+          <a href="/plano-lotes/" class="addlink">
+            Abrir plano y consultar terrenos
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">Reportes</th>
+        <td>
+          <a href="/reportes/" class="addlink">
+            Ver todos los reportes
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">Cartera (me deben)</th>
+        <td>
+          <a href="/reportes/cartera/" class="addlink">
+            Cuánto falta por cobrar
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">Mora</th>
+        <td>
+          <a href="/reportes/mora/" class="addlink">
+            Clientes con cuotas vencidas
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}

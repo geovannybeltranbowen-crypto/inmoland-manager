@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Panel · INMOLAND Manager{% endblock %}
+{% block content %}
+<h1>Panel de control</h1>
+<p class="sub">Resumen operativo de proyectos, inventario, ventas y comisiones.</p>
+<div style="margin-top:18px"><a class="btn" href="/admin/">Abrir administración</a></div>
+<div class="cards">
+  <div class="card"><div class="sub">Proyectos</div><div class="metric">{{ projects_count }}</div></div>
+  <div class="card"><div class="sub">Lotes registrados</div><div class="metric">{{ lots_count }}</div></div>
+  <div class="card"><div class="sub">Lotes disponibles</div><div class="metric">{{ available_count }}</div></div>
+  <div class="card"><div class="sub">Clientes</div><div class="metric">{{ clients_count }}</div></div>
+  <div class="card"><div class="sub">Ventas registradas</div><div class="metric">{{ sales_count }}</div></div>
+  <div class="card"><div class="sub">Cobros ingresados</div><div class="metric">${{ paid_total|floatformat:2 }}</div></div>
+</div>
+<div class="cards">
+  <div class="card"><div class="sub">Comisiones bloqueadas por falta del 50%</div><div class="metric">{{ blocked_commissions }}</div></div>
+  <div class="card"><div class="sub">Comisiones habilitadas</div><div class="metric">{{ enabled_commissions }}</div></div>
+</div>
+<div class="section">
+  <div class="card">
+    <h2>Ventas recientes</h2><div class="table-wrap"><table>
+      <thead><tr><th>Lote</th><th>Cliente</th><th>Vendedor</th><th>Precio</th></tr></thead>
+      <tbody>{% for sale in recent_sales %}<tr><td>{{ sale.lot.number }}</td><td>{{ sale.client }}</td><td>{{ sale.seller }}</td><td>${{ sale.final_price|floatformat:2 }}</td></tr>
+      {% empty %}<tr><td colspan="4" class="sub">Aún no hay ventas. Registra una desde Administración.</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <h2>Inventario de lotes</h2><div class="table-wrap"><table>
+      <thead><tr><th>Proyecto</th><th>Lote</th><th>Precio</th><th>Estado</th></tr></thead>
+      <tbody>{% for lot in recent_lots %}<tr><td>{{ lot.project.name }}</td><td>{{ lot.number }}</td><td>${{ lot.sale_price|floatformat:2 }}</td><td><span class="pill">{{ lot.get_status_display }}</span></td></tr>
+      {% empty %}<tr><td colspan="4" class="sub">Aún no hay lotes registrados.</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+</div>
+{% endblock %}

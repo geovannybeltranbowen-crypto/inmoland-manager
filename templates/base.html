@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}INMOLAND Manager{% endblock %}</title>
+  <style>
+    :root{--navy:#12233f;--blue:#2157a5;--gold:#d7a83e;--bg:#f4f6fa;--text:#243047;--muted:#68758a}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+    header{background:var(--navy);color:#fff;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+    .brand{font-weight:800;letter-spacing:.4px}.brand span{color:var(--gold)}nav{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+    a{color:var(--blue);text-decoration:none}header a{color:#fff}.container{max-width:1200px;margin:28px auto;padding:0 20px}
+    .sub{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:22px 0}
+    .card{background:#fff;border:1px solid #e5e9f1;border-radius:14px;padding:20px;box-shadow:0 3px 12px #13213b08}
+    .metric{font-size:30px;font-weight:800;margin-top:8px;color:var(--navy)}h1{font-size:28px;margin:0}h2{font-size:18px;margin:0 0 14px}
+    .section{display:grid;grid-template-columns:1fr 1fr;gap:18px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #edf0f5;white-space:nowrap}th{color:var(--muted);font-weight:650}
+    .btn{display:inline-block;background:var(--blue);color:#fff;padding:9px 13px;border-radius:8px;font-weight:650}
+    .pill{background:#eef3ff;color:#244f98;border-radius:99px;padding:4px 9px;font-size:12px}
+    .footer{margin-top:28px;color:var(--muted);font-size:12px}.login{max-width:430px;margin:60px auto}
+    input{max-width:100%;padding:9px;border:1px solid #ccd4e0;border-radius:7px}
+    @media(max-width:760px){.section{grid-template-columns:1fr}header{padding:16px 20px}.container{margin-top:20px}}
+    select, input[type="date"], input[type="text"] {
+        width: 100%;
+        max-width: 100%;
+        padding: 9px;
+        border: 1px solid #ccd4e0;
+        border-radius: 7px;
+        background: #fff;
+    }
+    label {
+        display: block;
+        font-weight: 600;
+    }
+    label input, label select {
+        display: block;
+        margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">INMO<span>LAND</span> <small>Manager</small></div>
+  <nav>
+  {% if user.is_authenticated %}
+    <a href="/">Panel</a>
+    <a href="{% url 'reportes_index' %}">Reportes</a>
+    <a href="/admin/">Administración</a>
+    <span>{{ user.username }}</span>
+    <form action="{% url 'logout' %}" method="post" style="margin:0">{% csrf_token %}<button type="submit">Salir</button></form>
+  {% endif %}
+</nav>
+</header>
+<main class="container">{% block content %}{% endblock %}
+<div class="footer">Compra-Venta Bienes INMOLAND · Versión inicial de pruebas · No usar aún con datos reales.</div>
+</main>
+</body>
+</html>
