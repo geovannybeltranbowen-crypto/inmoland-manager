@@ -48,10 +48,32 @@ ASGI_APPLICATION = "config.asgi.application"
 
 database_url = os.environ.get("DATABASE_URL", "").strip()
 if database_url:
-    DATABASES = {"default": dj_database_url.parse(database_url, conn_max_age=600, ssl_require=not DEBUG)}
+    DATABASES = {
+        "default": dj_database_url.parse(
+            database_url, conn_max_age=600, ssl_require=not DEBUG
+        )
+    }
+elif os.environ.get("MYSQLHOST"):
+    # Producción en Railway con MySQL
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.environ.get("MYSQLDATABASE"),
+            "USER": os.environ.get("MYSQLUSER"),
+            "PASSWORD": os.environ.get("MYSQLPASSWORD"),
+            "HOST": os.environ.get("MYSQLHOST"),
+            "PORT": os.environ.get("MYSQLPORT"),
+            "OPTIONS": {"charset": "utf8mb4"},
+        }
+    }
 else:
-    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
-
+    # Desarrollo local con SQLite
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
