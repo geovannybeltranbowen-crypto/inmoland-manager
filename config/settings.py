@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     "core",
     "django_binary_builder",
 ]
@@ -113,3 +114,6 @@ DJANGO_BINARY_BUILDER = {
 WINDOWS = {
     "INNO_SETUP_COMPILER": r"C:\Users\soloe\AppData\Local\Programs\Inno Setup 7\ISCC.exe",
 }
+# URL a la que apunta el botón "Ver el sitio" del admin
+SITE_URL = "/"
+SITE_ID = 1
