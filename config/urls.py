@@ -21,7 +21,8 @@ from core.reportes_views import (
     sri as reporte_sri,
     sri_excel as reporte_sri_excel,
 )
-
+from django.contrib import admin
+admin.site.site_url = "/"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
