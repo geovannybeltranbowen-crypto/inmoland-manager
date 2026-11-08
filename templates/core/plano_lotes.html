@@ -9,7 +9,15 @@
     .plan-card { background: #ffffff; border: 1px solid #dfe5eb; border-radius: 14px; padding: 16px; min-width: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     
     .plan-stage { position: relative; width: 100%; line-height: 0; background: #e2e8f0; overflow: hidden; border-radius: 8px; border: 2px dashed #94a3b8; min-height: 400px; display: flex; align-items: center; justify-content: center; }
-    .plan-stage img { display: block; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 1; }
+    .plan-stage img { 
+      display: block; 
+      width: 100%; 
+      height: auto; 
+      position: relative; /* Cambiado de absolute a relative */
+      z-index: 1; 
+      object-fit: contain; /* Obliga a que la imagen se vea entera */
+      margin: 0 auto; /* La centra */
+    }
     
     #markers { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
     
