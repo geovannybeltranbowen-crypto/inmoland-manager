@@ -5,16 +5,15 @@
 
 {% block content %}
 <style>
-    .plan-wrap { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr); gap: 18px; margin-top: 18px; }
-    .plan-card { background: #fff; border: 1px solid #dfe5eb; border-radius: 14px; padding: 16px; min-width: 0; }
+    .plan-wrap { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr); gap: 18px; margin-top: 18px; color: #1e293b; }
+    .plan-card { background: #ffffff; border: 1px solid #dfe5eb; border-radius: 14px; padding: 16px; min-width: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     
-    /* Fondo gris para que resalte el plano */
     .plan-stage { position: relative; width: 100%; line-height: 0; background: #e2e8f0; overflow: hidden; border-radius: 8px; border: 2px dashed #94a3b8; min-height: 400px; display: flex; align-items: center; justify-content: center; }
     .plan-stage img { display: block; width: 100%; height: auto; position: absolute; top: 0; left: 0; z-index: 1; }
     
     #markers { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
     
-    /* Diseño de los botones de los lotes */
+    /* Marcadores del plano */
     .lot-marker {
         pointer-events: auto;
         position: absolute;
@@ -22,49 +21,61 @@
         min-width: 32px;
         height: 32px;
         padding: 0 6px;
-        border: 2px solid #1e293b;
-        border-radius: 6px;
+        border: 2px solid #0f172a;
+        border-radius: 8px;
         font-size: 13px;
-        font-weight: 800;
+        font-weight: 900;
         line-height: 28px;
         text-align: center;
         cursor: pointer;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-        color: #000000; /* Letras negras para que se lean bien */
+        box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        color: #000000 !important;
         background-color: #f8fafc;
         z-index: 5;
         transition: all 0.2s;
     }
-    .lot-marker:hover { transform: translate(-50%, -50%) scale(1.15); z-index: 10; }
+    .lot-marker:hover { transform: translate(-50%, -50%) scale(1.2); z-index: 10; }
     
-    /* Colores por estado */
-    .lot-marker.available { background: #76d69a; }
-    .lot-marker.reserved { background: #ffd166; }
-    .lot-marker.promise { background: #f4a261; }
-    .lot-marker.deed { background: #8ecae6; }
-    .lot-marker.cash { background: #b8a1e3; }
-    .lot-marker.credit { background: #f28482; }
-    .lot-marker.unmatched { background: #e5e7eb; }
+    .lot-marker.available { background: #4ade80; }
+    .lot-marker.reserved { background: #facc15; }
+    .lot-marker.promise { background: #fb923c; }
+    .lot-marker.deed { background: #38bdf8; }
+    .lot-marker.cash { background: #c084fc; }
+    .lot-marker.credit { background: #f87171; }
+    .lot-marker.unmatched { background: #cbd5e1; }
     .lot-marker.active { outline: 3px solid #ef4444; z-index: 10; }
 
     /* Panel de detalles */
-    .lot-details h2 { margin-top: 0; }
-    .lot-details dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin: 0; }
-    .lot-details dt { color: #64748b; }
-    .lot-details dd { margin: 0; text-align: right; font-weight: 600; }
-    .lot-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-    .lot-chip { border: 1px solid #d5dde5; border-radius: 7px; padding: 6px 9px; background: #fff; cursor: pointer; font-size: 12px; }
+    .lot-details h2 { margin-top: 0; color: #0f172a; }
+    .lot-details dl { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 0; }
+    .lot-details dt { color: #475569; font-weight: bold; font-size: 14px; }
+    .lot-details dd { margin: 0; text-align: right; font-weight: 600; color: #0f172a; font-size: 14px; }
+    
+    /* Botones de la lista */
+    .lot-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; max-height: 300px; overflow-y: auto; padding-right: 5px; }
+    .lot-chip { 
+        border: 1px solid #94a3b8; 
+        border-radius: 6px; 
+        padding: 6px 10px; 
+        background: #f1f5f9; 
+        color: #000000 !important;
+        font-weight: 800;
+        cursor: pointer; 
+        font-size: 13px; 
+        transition: background 0.2s;
+    }
+    .lot-chip:hover { background: #cbd5e1; }
     
     @media(max-width: 850px) { .plan-wrap { grid-template-columns: 1fr; } }
 </style>
 
 <h1>Plano de lotes</h1>
-<p class="sub">Selecciona un proyecto y toca el número de lote en el plano para consultar sus datos.</p>
+<p style="color: #475569;">Selecciona un proyecto y toca el número de lote en el plano para consultar sus datos.</p>
 
 {% if project %}
     <form method="get" style="margin-bottom: 15px;">
         <label for="proyecto"><strong>Proyecto</strong></label>
-        <select name="proyecto" id="proyecto" onchange="this.form.submit()" style="padding: 8px; border-radius: 6px; margin-left: 10px;">
+        <select name="proyecto" id="proyecto" onchange="this.form.submit()" style="padding: 8px; border-radius: 6px; margin-left: 10px; border: 1px solid #94a3b8;">
             {% for p in projects %}
                 <option value="{{ p.id }}" {% if p.id == project.id %}selected{% endif %}>{{ p.name }}</option>
             {% endfor %}
@@ -85,31 +96,33 @@
                 <div id="markers"></div>
             </div>
             
-            <div class="geometry-editor" style="margin-top:12px; line-height:1.5">
+            <div style="margin-top:12px; line-height:1.5">
                 {% csrf_token %}
                 <label for="geometryLot"><strong>Dibujar contorno (opcional)</strong></label>
-                <select id="geometryLot" style="padding: 8px; border-radius: 6px; width: 100%; margin-top: 5px;">
+                <select id="geometryLot" style="padding: 8px; border-radius: 6px; width: 100%; margin-top: 5px; border: 1px solid #94a3b8;">
                     <option value="">Selecciona un lote...</option>
                     {% for lot in lots %}
                         <option value="{{ lot.id }}">{{ lot.number }} — {{ lot.get_status_display }}</option>
                     {% endfor %}
                 </select>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; margin:8px 0">
-                    <button type="button" class="btn btn-primary" id="startDrawing" style="background:#2563eb;color:white;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;">Dibujar contorno</button>
-                    <button type="button" class="btn btn-secondary" id="undoPoint" style="background:#64748b;color:white;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;">Deshacer punto</button>
-                    <button type="button" class="btn btn-secondary" id="saveGeometry" style="background:#10b981;color:white;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;">Guardar contorno</button>
+                    <button type="button" id="startDrawing" style="background:#2563eb;color:white;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;font-weight:bold;">Dibujar contorno</button>
+                    <button type="button" id="undoPoint" style="background:#64748b;color:white;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;font-weight:bold;">Deshacer punto</button>
+                    <button type="button" id="saveGeometry" style="background:#10b981;color:white;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;font-weight:bold;">Guardar contorno</button>
                 </div>
-                <p id="geometryMessage" class="sub">Selecciona un lote, dibuja sus esquinas y guarda el contorno.</p>
+                <p id="geometryMessage" style="color: #475569;">Selecciona un lote, dibuja sus esquinas y guarda el contorno.</p>
             </div>
         </section>
 
         <aside class="plan-card lot-details">
             <h2>Detalle del lote</h2>
             <div id="lotDetails">
-                <p style="color: #64748b;">Haz clic en un número del plano para ver los datos.</p>
+                <p style="color: #475569;">Haz clic en un número del plano o en un lote de la lista para ver sus datos.</p>
             </div>
-            <h3 style="margin-top:20px">Buscar por número</h3>
-            <input id="lotSearch" type="search" placeholder="Ej. 12, 81.1" style="padding: 8px; width: 100%; border-radius: 6px; border: 1px solid #ccc;">
+            
+            <h3 style="margin-top:20px;">Buscar por número</h3>
+            <input id="lotSearch" type="search" placeholder="Ej. 12, 81.1" style="padding: 8px; width: 100%; border-radius: 6px; border: 1px solid #94a3b8; margin-bottom: 10px; box-sizing: border-box;">
+            
             <div class="lot-list" id="lotList">
                 {% for lot in lots %}
                     <button class="lot-chip" type="button" data-lot-id="{{ lot.id }}" data-lot-number="{{ lot.number|escape }}">
@@ -121,12 +134,11 @@
     </div>
 
     <script>
-    (function() {
-        // 1. Datos de los lotes inyectados por Django
+    document.addEventListener('DOMContentLoaded', function() {
         const lots = [
             {% for lot in lots %}
             {
-                id: {{ lot.id }},
+                id: "{{ lot.id }}",
                 number: "{{ lot.number|escapejs }}",
                 block: "{{ lot.block|default:''|escapejs }}",
                 area: "{{ lot.area_m2 }}",
@@ -142,13 +154,27 @@
         const detailHost = document.getElementById('lotDetails');
         const byId = new Map(lots.map(l => [String(l.id), l]));
         
-        // Función para formatear dinero
-        function money(v) { return '$' + Number(v || 0).toLocaleString('es-EC', {minimumFractionDigits: 2}); }
+        function money(v) { 
+            return '$' + Number(v || 0).toLocaleString('es-EC', {minimumFractionDigits: 2}); 
+        }
 
-        // 2. Dibujar los botones en el plano
+        function showLotDetails(lot) {
+            if (!detailHost) return;
+            detailHost.innerHTML = `
+                <dl>
+                    <dt>Proyecto</dt><dd>{{ project.name|escapejs }}</dd>
+                    <dt>Lote</dt><dd>${lot.number}</dd>
+                    <dt>Manzana</dt><dd>${lot.block || '---'}</dd>
+                    <dt>Superficie</dt><dd>${lot.area} m²</dd>
+                    <dt>Precio</dt><dd>${money(lot.price)}</dd>
+                    <dt>Estado</dt><dd><span style="background:#e2e8f0;padding:2px 6px;border-radius:4px;">${lot.statusLabel}</span></dd>
+                </dl>`;
+        }
+
+        // Dibujar marcadores en el plano
         lots.forEach(lot => {
             const geo = markers.find(m => String(m.lot_id) === String(lot.id));
-            if (!geo || !geo.points || geo.points.length === 0) return; // Si no tiene contorno guardado, no lo dibujamos en el mapa
+            if (!geo || !geo.points || geo.points.length === 0) return; 
 
             const sumX = geo.points.reduce((acc, p) => acc + p.x, 0);
             const sumY = geo.points.reduce((acc, p) => acc + p.y, 0);
@@ -163,42 +189,39 @@
             btn.style.top = top + '%';
             
             btn.addEventListener('click', () => {
-                if (!detailHost) return;
-                detailHost.innerHTML = `
-                    <dl>
-                        <dt>Proyecto</dt><dd>{{ project.name|escapejs }}</dd>
-                        <dt>Lote</dt><dd>${lot.number}</dd>
-                        <dt>Manzana</dt><dd>${lot.block || '---'}</dd>
-                        <dt>Superficie</dt><dd>${lot.area} m²</dd>
-                        <dt>Precio</dt><dd>${money(lot.price)}</dd>
-                        <dt>Estado</dt><dd>${lot.statusLabel}</dd>
-                    </dl>`;
-                
-                // Marcar activo
+                showLotDetails(lot);
                 markerHost.querySelectorAll('.lot-marker').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             });
             markerHost.appendChild(btn);
         });
 
-        // 3. Buscador por chips de abajo
-        document.getElementById('lotSearch').addEventListener('input', (e) => {
-            const q = e.target.value.toLowerCase();
-            document.querySelectorAll('.lot-chip').forEach(b => {
-                b.hidden = !b.dataset.lotNumber.toLowerCase().includes(q);
+        // Buscador
+        const searchInput = document.getElementById('lotSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const q = e.target.value.toLowerCase();
+                document.querySelectorAll('.lot-chip').forEach(b => {
+                    b.style.display = b.dataset.lotNumber.toLowerCase().includes(q) ? 'block' : 'none';
+                });
             });
-        });
+        }
 
+        // Clic en la lista lateral
         document.querySelectorAll('.lot-chip').forEach(b => {
             b.addEventListener('click', () => {
                 const lot = byId.get(String(b.dataset.lotId));
-                // Buscar el botón en el mapa para simular el clic
+                if (lot) showLotDetails(lot);
+                
                 const mapBtn = Array.from(markerHost.children).find(el => el.textContent === lot.number);
-                if (mapBtn) mapBtn.click();
+                if (mapBtn) {
+                    markerHost.querySelectorAll('.lot-marker').forEach(m => m.classList.remove('active'));
+                    mapBtn.classList.add('active');
+                }
             });
         });
 
-        // 4. Editor de contornos (Lógica SVG original)
+        // Editor de contornos
         const stage = document.getElementById('planStage');
         const lotSelect = document.getElementById('geometryLot');
         const message = document.getElementById('geometryMessage');
@@ -229,56 +252,69 @@
         }
 
         function getCSRFToken() {
-            const input = document.querySelector('.geometry-editor input[name="csrfmiddlewaretoken"]');
+            const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
             return input ? input.value : '';
         }
 
-        startButton.addEventListener('click', () => {
-            if (!lotSelect.value) { message.textContent = 'Primero selecciona un lote.'; return; }
-            editingLotId = lotSelect.value;
-            currentPoints = [];
-            drawing = true;
-            message.textContent = 'Haz clic en cada esquina del lote.';
-        });
+        if (startButton) {
+            startButton.addEventListener('click', () => {
+                if (!lotSelect.value) { message.textContent = 'Primero selecciona un lote.'; return; }
+                editingLotId = lotSelect.value;
+                currentPoints = [];
+                drawing = true;
+                message.textContent = 'Haz clic en cada esquina del lote.';
+            });
+        }
 
-        stage.addEventListener('click', event => {
-            if (!drawing) return;
-            if (event.target.closest('.lot-marker')) return;
-            const rect = stage.getBoundingClientRect();
-            currentPoints.push({ x: Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)), y: Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height)) });
-            
-            // Redibujar temporal
-            svg.replaceChildren();
-            markers.forEach(m => { if(m.points) drawPolygon(m.points, '#10b981'); });
-            drawPolygon(currentPoints, '#2563eb');
-            
-            message.textContent = `Puntos marcados: ${currentPoints.length}`;
-        });
+        if (stage) {
+            stage.addEventListener('click', event => {
+                if (!drawing) return;
+                if (event.target.closest('.lot-marker')) return;
+                const rect = stage.getBoundingClientRect();
+                currentPoints.push({ x: Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)), y: Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height)) });
+                
+                svg.replaceChildren();
+                markers.forEach(m => { if(m.points) drawPolygon(m.points, '#10b981'); });
+                drawPolygon(currentPoints, '#2563eb');
+                
+                message.textContent = `Puntos marcados: ${currentPoints.length}`;
+            });
+        }
 
-        undoButton.addEventListener('click', () => {
-            if (currentPoints.length) { currentPoints.pop(); message.textContent = 'Punto deshecho.'; }
-        });
+        if (undoButton) {
+            undoButton.addEventListener('click', () => {
+                if (currentPoints.length) { 
+                    currentPoints.pop(); 
+                    svg.replaceChildren();
+                    markers.forEach(m => { if(m.points) drawPolygon(m.points, '#10b981'); });
+                    drawPolygon(currentPoints, '#2563eb');
+                    message.textContent = 'Punto deshecho.'; 
+                }
+            });
+        }
 
-        saveButton.addEventListener('click', async () => {
-            if (!editingLotId || currentPoints.length < 3) { message.textContent = 'Marca al menos 3 esquinas.'; return; }
-            saveButton.disabled = true;
-            message.textContent = 'Guardando...';
-            try {
-                const response = await fetch("{% url 'guardar_geometria_lote' %}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-                    body: JSON.stringify({ lot_id: Number(editingLotId), points: currentPoints })
-                });
-                if (!response.ok) throw new Error('Error');
-                window.location.reload(); // Recargar para ver el nuevo botón
-            } catch (error) {
-                message.textContent = 'Error al guardar.';
-                saveButton.disabled = false;
-            }
-        });
-    })();
+        if (saveButton) {
+            saveButton.addEventListener('click', async () => {
+                if (!editingLotId || currentPoints.length < 3) { message.textContent = 'Marca al menos 3 esquinas.'; return; }
+                saveButton.disabled = true;
+                message.textContent = 'Guardando...';
+                try {
+                    const response = await fetch("{% url 'guardar_geometria_lote' %}", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                        body: JSON.stringify({ lot_id: Number(editingLotId), points: currentPoints })
+                    });
+                    if (!response.ok) throw new Error('Error');
+                    window.location.reload(); 
+                } catch (error) {
+                    message.textContent = 'Error al guardar.';
+                    saveButton.disabled = false;
+                }
+            });
+        }
+    }); // Cierre del DOMContentLoaded
     </script>
 {% else %}
-    <div class="plan-card">Todavía no hay proyectos registrados.</div>
+    <div class="plan-card"><p>Todavía no hay proyectos registrados.</p></div>
 {% endif %}
 {% endblock %}
