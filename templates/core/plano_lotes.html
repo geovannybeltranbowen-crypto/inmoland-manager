@@ -8,10 +8,10 @@
     position: relative;
     width: 100%;
     line-height: 0;
-    background: #e2e8f0; /* Gris un poco más oscuro para que resalte el plano */
+    background: #e2e8f0; /* Un gris claro */
     overflow: hidden;
     border-radius: 8px;
-    border: 1px solid #cbd5e1; /* Un borde suave para delimitar */
+    border: 1px solid #94a3b8;
 }
 
 #markers {
@@ -21,7 +21,27 @@
     height: 100%;
     pointer-events: none;
 }
-#markers{position:absolute;inset:0;width:100%;height:100%;pointer-events:none} .lot-marker{pointer-events:auto;position:absolute;transform:translate(-50%,-50%);min-width:25px;height:25px;padding:0 4px;border:1px solid #fff;border-radius:50%;font-size:10px;font-weight:700;line-height:23px;text-align:center;cursor:pointer;box-shadow:0 1px 4px #0003;color:#18212b}
+#markers{position:absolute;inset:0;width:100%;height:100%;pointer-events:none} 
+.lot-marker {
+    pointer-events: auto;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    min-width: 32px; /* Más ancho */
+    height: 32px;    /* Más alto */
+    padding: 0 5px;
+    border: 2px solid #243b53; /* Borde oscuro para que resalte */
+    border-radius: 6px; /* Un poco cuadrado, más fácil de leer */
+    font-size: 14px; /* Letra más grande */
+    font-weight: 800;
+    line-height: 28px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    color: #ffffff; /* Texto blanco */
+    background-color: #3b82f6; /* Fondo azul por defecto (Disponible) */
+    z-index: 5;
+    transition: all 0.2s;
+}
 .lot-marker.available { background: #76d69a; color: #000000; }
 .lot-marker.reserved { background: #ffd166; color: #000000; }
 .lot-marker.promise { background: #f4a261; color: #000000; }
