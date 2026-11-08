@@ -112,7 +112,9 @@
             <input id="lotSearch" type="search" placeholder="Ej. 12, 81.1" style="padding: 8px; width: 100%; border-radius: 6px; border: 1px solid #ccc;">
             <div class="lot-list" id="lotList">
                 {% for lot in lots %}
-                    <button class="lot-chip" type="button" data-lot-id="{{ lot.id }}" data-lot-number="{{ lot.number|escape }}">{{ lot.number }}</button>
+                    <button class="lot-chip" type="button" data-lot-id="{{ lot.id }}" data-lot-number="{{ lot.number|escape }}">
+                        Lote {{ lot.number }}
+                    </button>
                 {% endfor %}
             </div>
         </aside>
