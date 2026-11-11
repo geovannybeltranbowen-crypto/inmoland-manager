@@ -102,6 +102,18 @@ class Sale(models.Model):
         CASH = "cash", "Contado"
         CREDIT = "credit", "Crédito directo"
 
+    class Etapa(models.TextChoices):
+        RESERVA = "reserva", "Reserva / Separación"
+        PROMESA = "promesa", "Promesa de Compraventa"
+        VENTA = "venta", "Venta Definitiva"
+
+    etapa = models.CharField(
+        "Etapa del negocio", 
+        max_length=15, 
+        choices=Etapa.choices, 
+        default=Etapa.VENTA
+    )
+
     lot = models.ForeignKey(Lot, on_delete=models.PROTECT, related_name="sales", verbose_name="Lote")
     client = models.ForeignKey(Client, on_delete=models.PROTECT, related_name="sales", verbose_name="Cliente")
     seller = models.ForeignKey(Seller, on_delete=models.PROTECT, related_name="sales", verbose_name="Vendedor")
@@ -177,6 +189,11 @@ class Sale(models.Model):
         from django.db import transaction
 
         with transaction.atomic():
+            if self.etapa == Sale.Etapa.RESERVA:
+                raise ValidationError(
+                    "No se pueden generar cuotas para una reserva. "
+                    "Primero debe convertirse en Promesa o Venta Definitiva."
+                )
             sale = Sale.objects.select_for_update().get(pk=self.pk)
 
             if sale.sale_type != Sale.SaleType.CREDIT:
