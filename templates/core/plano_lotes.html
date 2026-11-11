@@ -9,19 +9,10 @@
     .plan-card { background: #ffffff; border: 1px solid #dfe5eb; border-radius: 14px; padding: 16px; min-width: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     
     .plan-stage { position: relative; width: 100%; line-height: 0; background: #e2e8f0; overflow: hidden; border-radius: 8px; border: 2px dashed #94a3b8; min-height: 400px; display: flex; align-items: center; justify-content: center; }
-    .plan-stage img { 
-      display: block; 
-      width: 100%; 
-      height: auto; 
-      position: relative; /* Cambiado de absolute a relative */
-      z-index: 1; 
-      object-fit: contain; /* Obliga a que la imagen se vea entera */
-      margin: 0 auto; /* La centra */
-    }
+    .plan-stage img { display: block; width: 100%; height: auto; position: relative; z-index: 1; object-fit: contain; margin: 0 auto; }
     
     #markers { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
     
-    /* Marcadores del plano */
     .lot-marker {
         pointer-events: auto;
         position: absolute;
@@ -44,21 +35,19 @@
     }
     .lot-marker:hover { transform: translate(-50%, -50%) scale(1.2); z-index: 10; }
     
-    .lot-marker.available { background: #ffffff; color: #000000 !important; border: 2px solid #94a3b8; } /* Blanco */
-    .lot-marker.reserved { background: #4ade80; color: #000000 !important; } /* Verde */
-    .lot-marker.promise { background: #fca5a5; color: #000000 !important; } /* Rojo Claro */
-    .lot-marker.cash { background: #991b1b; color: #ffffff !important; } /* Rojo Oscuro */
-    .lot-marker.credit { background: #991b1b; color: #ffffff !important; } /* Rojo Oscuro */
+    .lot-marker.available { background: #ffffff; color: #000000 !important; border: 2px solid #94a3b8; }
+    .lot-marker.reserved { background: #4ade80; color: #000000 !important; }
+    .lot-marker.promise { background: #fca5a5; color: #000000 !important; }
+    .lot-marker.cash { background: #991b1b; color: #ffffff !important; }
+    .lot-marker.credit { background: #991b1b; color: #ffffff !important; }
     .lot-marker.unmatched { background: #cbd5e1; }
     .lot-marker.active { outline: 3px solid #ef4444; z-index: 10; }
 
-    /* Panel de detalles */
     .lot-details h2 { margin-top: 0; color: #0f172a; }
     .lot-details dl { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 0; }
     .lot-details dt { color: #475569; font-weight: bold; font-size: 14px; }
     .lot-details dd { margin: 0; text-align: right; font-weight: 600; color: #0f172a; font-size: 14px; }
     
-    /* Botones de la lista */
     .lot-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; max-height: 300px; overflow-y: auto; padding-right: 5px; }
     .lot-chip { 
         border: 1px solid #94a3b8; 
@@ -97,7 +86,7 @@
                 {% else %}
                     <div style="padding:20px; text-align:center; line-height:1.5; z-index:3; position:relative;">
                         <strong style="font-size:16px;">No hay imagen del plano subida.</strong><br><br>
-                        Ve al <a href="/admin/core/project/{{ project.id }}/change/" target="_blank">Admin de Proyectos</a>, sube la imagen en "Plano del proyecto" y recarga esta página.
+                        Ve al <a href="/admin/core/project/{{ project.id }}/change/" target="_blank">Admin de Proyectos</a>, sube la imagen y recarga.
                     </div>
                 {% endif %}
                 <div id="markers"></div>
@@ -140,7 +129,7 @@
         </aside>
     </div>
 
-    <script>
+        <script>
     document.addEventListener('DOMContentLoaded', function() {
         const lots = [
             {% for lot in lots %}
@@ -161,12 +150,24 @@
         const detailHost = document.getElementById('lotDetails');
         const byId = new Map(lots.map(l => [String(l.id), l]));
         
+        // ¡AQUÍ ESTÁ EL ARREGLO DEL NaN!
         function money(v) { 
-            return '$' + Number(v || 0).toLocaleString('es-EC', {minimumFractionDigits: 2}); 
+            // Convertimos a string, quitamos comas, y parseamos a float
+            let num = parseFloat(String(v).replace(/,/g, ''));
+            if (isNaN(num)) return '$0.00';
+            return '$' + num.toLocaleString('es-EC', {minimumFractionDigits: 2}); 
         }
 
         function showLotDetails(lot) {
             if (!detailHost) return;
+            
+            // Lógica para el botón de venta
+            let botonVenta = '';
+            if (lot.status === 'available') {
+                const url = `/admin/core/sale/add/?project={{ project.id }}&lot=${lot.id}`;
+                botonVenta = `<div style="margin-top:15px;"><a href="${url}" style="display:block;text-align:center;background:#2563eb;color:white;padding:10px;border-radius:6px;text-decoration:none;font-weight:bold;">Registrar venta</a></div>`;
+            }
+
             detailHost.innerHTML = `
                 <dl>
                     <dt>Proyecto</dt><dd>{{ project.name|escapejs }}</dd>
@@ -175,7 +176,8 @@
                     <dt>Superficie</dt><dd>${lot.area} m²</dd>
                     <dt>Precio</dt><dd>${money(lot.price)}</dd>
                     <dt>Estado</dt><dd><span style="background:#e2e8f0;padding:2px 6px;border-radius:4px;">${lot.statusLabel}</span></dd>
-                </dl>`;
+                </dl>
+                ${botonVenta}`;
         }
 
         // Dibujar marcadores en el plano
@@ -321,6 +323,7 @@
         }
     }); // Cierre del DOMContentLoaded
     </script>
+    
 {% else %}
     <div class="plan-card"><p>Todavía no hay proyectos registrados.</p></div>
 {% endif %}
