@@ -80,6 +80,7 @@ class SaleAdminForm(forms.ModelForm):
         "client",
         "seller",
         "sale_type",
+        "etapa",
         "sale_date",
         "final_price",
         "initial_payment",
@@ -234,6 +235,7 @@ class SaleAdmin(admin.ModelAdmin):
         "client",
         "seller",
         "sale_type",
+        "etapa",
         "sale_date",
         "final_price",
         "initial_payment",
@@ -288,22 +290,20 @@ class SaleAdmin(admin.ModelAdmin):
         with transaction.atomic():
             lot = Lot.objects.get(pk=obj.lot_id)
 
-            # Comprobar otra vez antes de guardar una venta nueva.
             if not change:
                 if lot.status != Lot.Status.AVAILABLE:
-                    raise ValidationError(
-                        "El terreno ya no está disponible."
-                    )
-
+                    raise ValidationError("El terreno ya no está disponible.")
                 if Sale.objects.filter(lot_id=lot.pk).exists():
-                    raise ValidationError(
-                        "Este terreno ya tiene una venta registrada."
-                    )
+                    raise ValidationError("Este terreno ya tiene una venta registrada.")
 
             super().save_model(request, obj, form, change)
 
-            # Actualizar el estado del terreno.
-            if obj.sale_type == Sale.SaleType.CASH:
+            # Actualizar el estado del terreno según la etapa
+            if obj.etapa == Sale.Etapa.RESERVA:
+                lot.status = Lot.Status.RESERVED
+            elif obj.etapa == Sale.Etapa.PROMESA:
+                lot.status = Lot.Status.PROMISE
+            elif obj.sale_type == Sale.SaleType.CASH:
                 lot.status = Lot.Status.CASH
             elif obj.sale_type == Sale.SaleType.CREDIT:
                 lot.status = Lot.Status.CREDIT
