@@ -44,6 +44,7 @@
   <nav>
   {% if user.is_authenticated %}
     <a href="/">Panel</a><a href="{% url 'importar_lotes' %}">Importar Excel</a>
+    <a href="{% url 'importar_clientes' %}">Importar Clientes</a>
     <a href="{% url 'reportes_index' %}">Reportes</a>
     <a href="/admin/">Administración</a>
     <span>{{ user.username }}</span>

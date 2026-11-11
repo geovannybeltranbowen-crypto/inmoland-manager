@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Importar Clientes · INMOLAND{% endblock %}
+
+{% block content %}
+<style>
+    .card { background: white; padding: 22px; border-radius: 12px; max-width: 800px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .grid { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 15px; }
+    .field { display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: 220px; }
+    input, button { font: inherit; padding: 10px; border: 1px solid #cbd5e1; border-radius: 7px; }
+    button { background: #174a75; color: white; border: 0; cursor: pointer; font-weight: bold; }
+    button:hover { background: #103958; }
+    .alert { padding: 12px; background: #fff2d4; border-radius: 7px; margin: 10px 0; color: #8a5a00; }
+    .alert-ok { background: #e0f4e7; color: #1f6b3a; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+    th, td { padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+    th { background: #f8fafc; color: #475569; }
+</style>
+
+<div class="card">
+    <h1>Importar Clientes desde Excel</h1>
+    <p style="color: #64748b;">Sube un archivo Excel (.xlsx) con las columnas exactas: <strong>Nombres, Apellidos, Cédula, Teléfono, Email, Notas</strong>.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-ok{% endif %}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="grid">
+            <label class="field">
+                Archivo Excel (.xlsx)
+                <input type="file" name="excel_file" accept=".xlsx, .xlsm" required>
+            </label>
+            <div class="field" style="justify-content:end">
+                <button type="submit">Validar y mostrar vista previa</button>
+            </div>
+        </div>
+    </form>
+
+    {% if preview %}
+        <h2 style="margin-top: 30px;">Vista previa: {{ preview|length }} clientes</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombres</th><th>Apellidos</th><th>Cédula</th><th>Teléfono</th><th>Email</th><th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in preview %}
+                        <tr>
+                            <td>{{ c.first_name }}</td>
+                            <td>{{ c.last_name }}</td>
+                            <td>{{ c.identification }}</td>
+                            <td>{{ c.phone }}</td>
+                            <td>{{ c.email }}</td>
+                            <td>
+                                {% if c.exists %}
+                                    <span style="color: #d97706;">Ya existe (se actualizará)</span>
+                                {% else %}
+                                    <span style="color: #16a34a;">Nuevo</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if can_confirm %}
+            <form method="post" style="margin-top: 20px;" onsubmit="return confirm('¿Confirmas guardar estos clientes en la base de datos?');">
+                {% csrf_token %}
+                <input type="hidden" name="confirm_import" value="1">
+                <button type="submit" style="background: #16a34a;">Confirmar y guardar {{ preview|length }} clientes</button>
+            </form>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

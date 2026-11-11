@@ -9,6 +9,7 @@ from core.plano_views import plano_lotes, guardar_geometria_lote
 from core.gestion_lotes_views import importar_lotes, lista_cuadras, plano_referencia
 from core.ventas_views import lista_ventas
 from core.pagos_views import registrar_pago_cuota, anular_pago
+from core.importar_clientes_views import importar_clientes
 from core.reportes_views import (
     index as reportes_index,
     cartera as reporte_cartera,
@@ -64,6 +65,7 @@ urlpatterns = [
     path("reportes/mejores-clientes/", reporte_mejores_clientes, name="reporte_mejores_clientes"),
     path("reportes/sri/", reporte_sri, name="reporte_sri"),
     path("reportes/sri/excel/", reporte_sri_excel, name="reporte_sri_excel"),
+    path("importar-clientes/", importar_clientes, name="importar_clientes"),
 ]
 
 if settings.DEBUG:
