@@ -53,6 +53,7 @@ class Lot(models.Model):
     south_boundary = models.CharField("Lindero Sur (Colindante)", max_length=100, blank=True)
     east_boundary = models.CharField("Lindero Este (Colindante)", max_length=100, blank=True)
     west_boundary = models.CharField("Lindero Oeste (Colindante)", max_length=100, blank=True)
+    commission_percentage = models.DecimalField("Porcentaje de comisión (%)", max_digits=5, decimal_places=2, default=0, validators=[MinValueValidator(0)])
     sale_price = models.DecimalField("Precio de venta", max_digits=14, decimal_places=2, validators=[MinValueValidator(0)])
     status = models.CharField("Estado", max_length=20, choices=Status.choices, default=Status.AVAILABLE)
     notes = models.TextField("Notas", blank=True)
