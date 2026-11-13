@@ -29,6 +29,7 @@ ALIASES = {
     "south_boundary": ("lindero sur", "sur", "colindante sur"),
     "east_boundary": ("lindero este", "este", "colindante este"),
     "west_boundary": ("lindero oeste", "oeste", "colindante oeste"),
+    "commission_percentage": ("porcentaje", "comision", "comisión", "porcentaje comision"),
     "street": ("calle", "ubicacion", "ubicación", "calle o ubicacion"),
     "sale_price": ("precio", "precio de venta", "sale_price"),
     "status": ("estado", "status"),
@@ -44,7 +45,7 @@ STATUS_MAP = {
     "vendido a credito": "credit", "vendido a crédito": "credit", "credito": "credit", "crédito": "credit", "credit": "credit",
 }
 
-DECIMAL_FIELDS = ("area_m2", "front_m", "back_m", "left_side_m", "right_side_m", "sale_price")
+DECIMAL_FIELDS = ("area_m2", "front_m", "back_m", "left_side_m", "right_side_m", "sale_price", "commission_percentage")
 
 def _norm(value):
     return " ".join(str(value or "").strip().lower().replace("_", " ").split())
@@ -190,7 +191,7 @@ def importar_lotes(request):
                 if item.get("street"): lot.street = item["street"]
                 
                 # Guardar linderos (medidas)
-                for field in ("area_m2", "front_m", "back_m", "left_side_m", "right_side_m", "sale_price"):
+                for field in ("area_m2", "front_m", "back_m", "left_side_m", "right_side_m", "sale_price", "commission_percentage"):
                     if item.get(field) is not None:
                         setattr(lot, field, Decimal(item[field]))
                         
