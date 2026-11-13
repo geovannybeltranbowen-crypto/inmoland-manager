@@ -71,7 +71,9 @@ def _decimal(value, label, required=False):
         raise ValueError(f"El valor de {label} no es numérico: {value!s}.")
     if result < 0:
         raise ValueError(f"{label} no puede ser negativo.")
-    return result
+    
+    # Redondear automáticamente a 2 decimales para evitar errores en el porcentaje
+    return result.quantize(Decimal("0.01"))
 
 def _parse_rows(sheet_rows, project):
     rows = list(sheet_rows)
