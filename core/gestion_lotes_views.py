@@ -255,3 +255,53 @@ def lista_cuadras(request):
     selected_project = get_object_or_404(Project, pk=selected_id) if selected_id else projects.first()
     blocks = selected_project.blocks.prefetch_related("lots").all() if selected_project else []
     return render(request, "core/cuadras.html", {"projects": projects, "selected_project": selected_project, "blocks": blocks})
+@login_required
+@require_http_methods(["GET", "POST"])
+def plano_referencia(request):
+    from .models import ProjectPlan
+    projects = Project.objects.all()
+    
+    if request.method == "POST":
+        project = get_object_or_404(
+            Project,
+            pk=request.POST.get("project_id")
+        )
+        pdf = request.FILES.get("pdf_file")
+        
+        if not pdf or not pdf.name.lower().endswith(".pdf"):
+            messages.error(request, "Selecciona un archivo PDF válido.")
+        else:
+            plan = ProjectPlan(
+                project=project,
+                title=request.POST.get("title") or "Plano de referencia",
+                pdf_file=pdf,
+                notes=request.POST.get("notes", "")
+            )
+            plan.full_clean()
+            plan.save()
+            messages.success(
+                request,
+                "PDF guardado como referencia. No se modificaron los lotes ni los archivos anteriores."
+            )
+            return redirect("plano_referencia")
+            
+    # Mostrar solamente el plano más reciente de cada proyecto.
+    planes_recientes = {}
+    for plan in (
+        ProjectPlan.objects
+        .select_related("project")
+        .order_by("-uploaded_at", "-pk")
+    ):
+        if plan.project_id not in planes_recientes:
+            planes_recientes[plan.project_id] = plan
+            
+    plans = list(planes_recientes.values())
+    
+    return render(
+        request,
+        "core/plano_referencia.html",
+        {
+            "projects": projects,
+            "plans": plans,
+        }
+    )
