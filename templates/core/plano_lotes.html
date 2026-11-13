@@ -193,7 +193,8 @@
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'lot-marker ' + lot.status;
-            btn.textContent = lot.number;
+                        // Quitamos la palabra "LOTE" o "Lote" si está en el nombre
+            btn.textContent = lot.number.replace(/lote\s*/i, '').trim();
             btn.style.left = left + '%';
             btn.style.top = top + '%';
             
