@@ -13,6 +13,34 @@ from .models import (
     Project, Block, Lot, Client, Seller, Sale, Payment,
     Promise, Commission, LegalFee, Installment,
 )
+from django.utils import timezone
+from decimal import Decimal
+
+@admin.action(description="Cancelar crédito (Pagar saldo total)")
+def cancelar_credito_action(self, request, queryset):
+    from .models import Installment, Payment
+    for sale in queryset:
+        if sale.sale_type != Sale.SaleType.CREDIT:
+            self.message_user(request, f"La venta {sale.pk} no es a crédito.", level=messages.WARNING)
+            continue
+        cuotas_pendientes = sale.installments.filter(status__in=[Installment.Status.PENDING, Installment.Status.PARTIAL, Installment.Status.OVERDUE])
+        if not cuotas_pendientes.exists():
+            continue
+        saldo_total = sum((c.remaining_amount for c in cuotas_pendientes), Decimal("0.00"))
+        if saldo_total <= 0:
+            continue
+        with transaction.atomic():
+            Payment.objects.create(
+                sale=sale,
+                amount=saldo_total,
+                payment_date=timezone.localdate(),
+                reference="Cancelación anticipada de crédito",
+                notes="Pago total del saldo restante."
+            )
+            for cuota in cuotas_pendientes:
+                cuota.status = Installment.Status.PAID
+                cuota.save(update_fields=["status"])
+        self.message_user(request, f"Crédito de la venta {sale.pk} cancelado. Pago de ${saldo_total}.", level=messages.SUCCESS)
 
 admin.site.site_header = "INMOLAND Manager"
 admin.site.site_title = "INMOLAND"
@@ -59,10 +87,6 @@ class InstallmentInline(admin.TabularInline):
     )
     readonly_fields = fields
     show_change_link = True
-
-
-
-
 
 class SaleAdminForm(forms.ModelForm):
     project = forms.ModelChoiceField(
@@ -244,6 +268,12 @@ class SaleAdmin(admin.ModelAdmin):
         "monthly_interest_rate",
         "notes",
     )
+    def get_fields(self, request, obj=None):
+        fields = list(super().get_fields(request, obj))
+        if obj and obj.etapa == Sale.Etapa.RESERVA:
+            campos_ocultos = ["credit_months", "interest_type", "monthly_interest_rate"]
+            fields = [f for f in fields if f not in campos_ocultos]
+        return fields
 
     list_display = ("lot", "client", "seller", "sale_type", "sale_date", "final_price")
     list_filter = ("lot__project", "lot__status")
@@ -255,7 +285,7 @@ class SaleAdmin(admin.ModelAdmin):
         "client__last_name",
         "seller__name",
     )
-    actions = ["generate_installments_action"]
+    actions = ["generate_installments_action", cancelar_credito_action]
     inlines = [PaymentInline, InstallmentInline]
 
     
