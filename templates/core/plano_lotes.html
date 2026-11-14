@@ -53,14 +53,18 @@
         border: 1px solid #94a3b8; 
         border-radius: 6px; 
         padding: 6px 10px; 
-        background: #f1f5f9; 
         color: #000000 !important;
         font-weight: 800;
         cursor: pointer; 
         font-size: 13px; 
         transition: background 0.2s;
     }
-    .lot-chip:hover { background: #cbd5e1; }
+    /* Colores para los botones de la lista lateral */
+    .lot-chip.available { background: #ffffff; }
+    .lot-chip.reserved { background: #4ade80; } /* Verde */
+    .lot-chip.promise { background: #fca5a5; }  /* Rojo Claro */
+    .lot-chip.cash { background: #991b1b; color: #ffffff !important; } /* Rojo Oscuro */
+    .lot-chip.credit { background: #991b1b; color: #ffffff !important; } /* Rojo Oscuro */
     
     @media(max-width: 850px) { .plan-wrap { grid-template-columns: 1fr; } }
 </style>
@@ -121,7 +125,7 @@
             
             <div class="lot-list" id="lotList">
                 {% for lot in lots %}
-                    <button class="lot-chip" type="button" data-lot-id="{{ lot.id }}" data-lot-number="{{ lot.number|escape }}">
+                    <button class="lot-chip {{ lot.status }}" type="button" data-lot-id="{{ lot.id }}" data-lot-number="{{ lot.number|escape }}">
                         Lote {{ lot.number }}
                     </button>
                 {% endfor %}
