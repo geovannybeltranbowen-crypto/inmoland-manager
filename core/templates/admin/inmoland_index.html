@@ -1,43 +1,36 @@
 {% extends "admin/index.html" %}
+
 {% block content %}
 {{ block.super }}
-<div class="module" style="margin-top: 20px;">
-  <h2>INMOLAND Manager</h2>
-  <table>
-    <tbody>
-      <tr>
-        <th scope="row">Plano de lotes</th>
-        <td>
-          <a href="/plano-lotes/" class="addlink">
-            Abrir plano y consultar terrenos
-          </a>
-        </td>
-      </tr>
-      <tr>
-        <th scope="row">Reportes</th>
-        <td>
-          <a href="/reportes/" class="addlink">
-            Ver todos los reportes
-          </a>
-        </td>
-      </tr>
-      <tr>
-        <th scope="row">Cartera (me deben)</th>
-        <td>
-          <a href="/reportes/cartera/" class="addlink">
-            Cuánto falta por cobrar
-          </a>
-        </td>
-      </tr>
-      <tr>
-        <th scope="row">Mora</th>
-        <td>
-          <a href="/reportes/mora/" class="addlink">
-            Clientes con cuotas vencidas
-          </a>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+
+<div class="module" style="margin-top: 20px; border: 2px solid #2157a5;">
+    <h2 style="background: #2157a5;">Accesos Rápidos INMOLAND</h2>
+    <table>
+        <tbody>
+            <tr>
+                <th scope="row" style="width: 50%;">Plano interactivo</th>
+                <td>
+                    <a href="/plano-lotes/" class="addlink" style="font-weight:bold;">
+                        Abrir plano y registrar ventas
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Reportes del Negocio</th>
+                <td>
+                    <a href="/reportes/" class="addlink">
+                        Ver Cartera, Mora, Créditos, etc.
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Importar Datos</th>
+                <td>
+                    <a href="/importar-lotes/" class="addlink">Importar Lotes (Excel)</a><br>
+                    <a href="/importar-clientes/" class="addlink">Importar Clientes (Excel)</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 {% endblock %}
