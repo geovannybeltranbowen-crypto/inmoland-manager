@@ -142,7 +142,7 @@
                 number: "{{ lot.number|escapejs }}",
                 block: "{{ lot.block|default:''|escapejs }}",
                 area: "{{ lot.area_m2 }}",
-                price: "{{ lot.sale_price }}",
+                price: parseFloat("{{ lot.sale_price|stringformat:'f' }}".replace(',', '.')),
                 status: "{{ lot.status }}",
                 statusLabel: "{{ lot.get_status_display|escapejs }}"
             },
