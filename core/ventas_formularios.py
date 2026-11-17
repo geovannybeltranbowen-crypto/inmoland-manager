@@ -84,6 +84,23 @@ class VentaFinalForm(forms.ModelForm):
             self.fields['client'].initial = reserva.client
             self.fields['seller'].initial = reserva.seller
             self.fields['final_price'].initial = self.lot.sale_price
+    # ¡AGREGA ESTO JUSTO DEBAJO DEL __init__!
+    def clean_initial_payment(self):
+        valor = self.cleaned_data.get('initial_payment')
+        if valor:
+            # Si el usuario escribe una coma, la convertimos en punto
+            if isinstance(valor, str):
+                valor = valor.replace(',', '.')
+            return float(valor)
+        return valor
+
+    def clean_final_price(self):
+        valor = self.cleaned_data.get('final_price')
+        if valor:
+            if isinstance(valor, str):
+                valor = valor.replace(',', '.')
+            return float(valor)
+        return valor
 
     def clean(self):
         cleaned_data = super().clean()

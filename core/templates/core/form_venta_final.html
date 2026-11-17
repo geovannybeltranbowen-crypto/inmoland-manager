@@ -1,7 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
 <style>
-    /* Forzar fondo blanco y texto negro en TODO el formulario */
     .formulario-caja {
         background-color: #ffffff !important;
         color: #000000 !important;
@@ -11,26 +10,9 @@
         border-radius: 10px;
         border: 1px solid #ccc;
     }
-    
-    .formulario-caja h1 {
-        color: #000000 !important;
-        border-bottom: 2px solid #ddd;
-        padding-bottom: 10px;
-    }
-
-    /* Etiquetas (Cliente, Vendedor, etc) */
-    .formulario-caja label {
-        color: #000000 !important;
-        font-weight: bold !important;
-        font-size: 14px;
-        margin-bottom: 5px;
-        display: block;
-    }
-
-    /* Cajas de texto y desplegables */
-    .formulario-caja input, 
-    .formulario-caja select,
-    .formulario-caja option {
+    .formulario-caja h1 { color: #000000 !important; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+    .formulario-caja label { color: #000000 !important; font-weight: bold !important; font-size: 14px; margin-bottom: 5px; display: block; }
+    .formulario-caja input, .formulario-caja select, .formulario-caja option {
         background-color: #ffffff !important;
         color: #000000 !important;
         border: 2px solid #999 !important;
@@ -40,22 +22,9 @@
         box-sizing: border-box;
         border-radius: 5px;
     }
-
-    /* Cuando haces clic en el desplegable */
-    .formulario-caja select:focus {
-        border-color: #2563eb !important;
-        outline: none;
-    }
-
-    .formulario-caja p {
-        margin-bottom: 15px;
-    }
-
-    .fila-doble {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
+    .formulario-caja p { margin-bottom: 15px; }
+    .fila-doble { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .texto-ayuda { color: #666; font-size: 12px; display: block; margin-top: 4px; }
 </style>
 
 <div class="formulario-caja">
@@ -75,14 +44,34 @@
         {% csrf_token %}
         
         <div class="fila-doble">
-            <div>{{ form.sale_type.label_tag }} {{ form.sale_type }}</div>
-            <div>{{ form.final_price.label_tag }} {{ form.final_price }}</div>
+            <div>
+                {{ form.sale_type.label_tag }} 
+                {{ form.sale_type }}
+            </div>
+            <div>
+                {{ form.final_price.label_tag }} 
+                {{ form.final_price }}
+                <small class="texto-ayuda">Usa el punto (.) para los decimales.</small>
+            </div>
             
-            <div>{{ form.initial_payment.label_tag }} {{ form.initial_payment }}</div>
-            <div>{{ form.credit_months.label_tag }} {{ form.credit_months }}</div>
+            <div>
+                {{ form.initial_payment.label_tag }} 
+                {{ form.initial_payment }}
+                <small class="texto-ayuda">Usa el punto (.). Ejemplo: 12380.40</small>
+            </div>
+            <div>
+                {{ form.credit_months.label_tag }} 
+                {{ form.credit_months }}
+            </div>
             
-            <div>{{ form.interest_type.label_tag }} {{ form.interest_type }}</div>
-            <div>{{ form.monthly_interest_rate.label_tag }} {{ form.monthly_interest_rate }}</div>
+            <div>
+                {{ form.interest_type.label_tag }} 
+                {{ form.interest_type }}
+            </div>
+            <div>
+                {{ form.monthly_interest_rate.label_tag }} 
+                {{ form.monthly_interest_rate }}
+            </div>
         </div>
 
         <div style="margin-top: 15px;">
