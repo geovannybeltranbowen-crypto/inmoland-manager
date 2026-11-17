@@ -1,15 +1,22 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
-<div style="max-width: 600px; margin: 20px auto; background: white; padding: 30px; border-radius: 10px; border: 1px solid #ccc;">
+<style>
+    .form-container { max-width: 600px; margin: 20px auto; background: #ffffff; padding: 30px; border-radius: 10px; border: 1px solid #ccc; color: #1e293b; }
+    .form-container h1 { color: #0f172a; }
+    .form-container label { color: #334155 !important; font-weight: bold; margin-bottom: 5px; }
+    .form-container input, .form-container select { color: #000000 !important; background-color: #f8fafc !important; border: 1px solid #94a3b8 !important; padding: 8px; border-radius: 5px; width: 100%; }
+    .form-container p { margin-bottom: 15px; }
+</style>
+<div class="form-container">
     <h1>Nueva Reserva de Lote</h1>
-    <p style="color: #666;">Selecciona el lote y el cliente. El sistema cambiará el estado del lote a "Separado" automáticamente.</p>
+    <p style="color: #475569;">Selecciona el lote y el cliente. El sistema cambiará el estado del lote a "Separado" automáticamente.</p>
     
     <form method="post">
         {% csrf_token %}
         <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
             {{ form.as_p }}
         </div>
-        <button type="submit" style="margin-top: 20px; background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+        <button type="submit" style="margin-top: 20px; background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">
             Guardar Reserva
         </button>
     </form>

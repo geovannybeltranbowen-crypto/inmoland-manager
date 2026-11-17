@@ -1,14 +1,44 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
-<div style="max-width: 700px; margin: 20px auto; background: white; padding: 30px; border-radius: 10px; border: 1px solid #ccc;">
-    <h1 style="color: #0f172a;">Formalizar Venta: Lote {{ lot.number }}</h1>
+<style>
+    /* Forzar letras oscuras en todo el formulario */
+    .form-container { 
+        max-width: 800px; 
+        margin: 20px auto; 
+        background: #ffffff; 
+        padding: 30px; 
+        border-radius: 10px; 
+        border: 1px solid #ccc;
+        color: #1e293b; /* Color de letra general */
+    }
+    .form-container h1 { color: #0f172a; }
+    .form-container label { 
+        color: #334155 !important; /* Letras de los títulos en gris oscuro */
+        font-weight: bold; 
+        margin-bottom: 5px;
+    }
+    .form-container input, .form-container select { 
+        color: #000000 !important; /* Letras dentro de las cajas en negro */
+        background-color: #f8fafc !important; 
+        border: 1px solid #94a3b8 !important;
+        padding: 8px;
+        border-radius: 5px;
+        width: 100%;
+    }
+    .form-container p { 
+        margin-bottom: 15px; 
+    }
+</style>
+
+<div class="form-container">
+    <h1>Formalizar Venta: Lote {{ lot.number }}</h1>
     
     {% if es_reserva %}
-        <div style="background: #e0f2fe; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <div style="background: #e0f2fe; padding: 15px; border-radius: 5px; margin-bottom: 20px; color: #0369a1;">
             <strong>Nota:</strong> Este lote tiene una reserva activa. Al guardar esta venta, la reserva pasará a ser una Venta Formal (Promesa).
         </div>
     {% else %}
-        <div style="background: #dcfce7; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <div style="background: #dcfce7; padding: 15px; border-radius: 5px; margin-bottom: 20px; color: #166534;">
             <strong>Venta Directa:</strong> No hay reserva previa. Estás registrando la venta definitiva directamente.
         </div>
     {% endif %}
@@ -16,17 +46,17 @@
     <form method="post">
         {% csrf_token %}
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             {{ form.as_p }}
         </div>
 
-        <div style="margin-top: 30px; display: flex; gap: 10px;">
+        <div style="margin-top: 30px; display: flex; gap: 10px; flex-wrap: wrap;">
             <button type="submit" style="background: #16a34a; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">
                 Guardar Venta y Generar Cuotas
             </button>
             
             {% if es_reserva %}
-                <a href="{% url 'desistir_reserva' lot.id %}" onclick="return confirm('¿Seguro que el cliente desiste? El lote volverá a estar Disponible.')" style="background: #dc2626; color: white; padding: 12px 24px; border-radius: 5px; text-decoration: none; font-size: 16px;">
+                <a href="{% url 'desistir_reserva' lot.id %}" onclick="return confirm('¿Seguro que el cliente desiste? El lote volverá a estar Disponible.')" style="background: #dc2626; color: white; padding: 12px 24px; border-radius: 5px; text-decoration: none; font-size: 16px; font-weight: bold;">
                     Cliente Desiste (Cancelar Reserva)
                 </a>
             {% endif %}
