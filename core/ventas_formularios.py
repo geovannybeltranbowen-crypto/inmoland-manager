@@ -60,6 +60,8 @@ def nueva_reserva(request):
 # 2. FORMULARIO Y VISTA DE VENTA FINAL
 # ==========================================
 class VentaFinalForm(forms.ModelForm):
+    final_price = forms.CharField(label="Precio Final Acordado ($)", required=True)
+    initial_payment = forms.CharField(label="Abono Inicial o Entrega ($)", required=False)
     class Meta:
         model = Sale
         fields = [
@@ -89,17 +91,21 @@ class VentaFinalForm(forms.ModelForm):
     def clean_final_price(self):
         valor = self.cleaned_data.get('final_price')
         if valor:
-            if isinstance(valor, str):
-                valor = valor.replace(',', '.')
-            return valor
+            valor = str(valor).replace(',', '.') # Cambia la coma por punto
+            try:
+                return float(valor)
+            except ValueError:
+                raise forms.ValidationError("Escribe un número válido (ej. 24760.80)")
         return valor
 
     def clean_initial_payment(self):
         valor = self.cleaned_data.get('initial_payment')
         if valor:
-            if isinstance(valor, str):
-                valor = valor.replace(',', '.')
-            return valor
+            valor = str(valor).replace(',', '.') # Cambia la coma por punto
+            try:
+                return float(valor)
+            except ValueError:
+                raise forms.ValidationError("Escribe un número válido (ej. 12380.40)")
         return valor
     # ----------------------------------------------
 
