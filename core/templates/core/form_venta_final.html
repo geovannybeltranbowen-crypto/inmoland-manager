@@ -1,73 +1,64 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
 <style>
-    /* Contenedor principal */
-    .form-container { 
-        max-width: 900px; 
-        margin: 20px auto; 
-        background: #ffffff; 
-        padding: 30px; 
-        border-radius: 10px; 
-        border: 1px solid #cbd5e1;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-        color: #000000 !important; /* Forzar texto negro en todo el contenedor */
+    /* Forzar fondo blanco y texto negro en TODO el formulario */
+    .formulario-caja {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 30px;
+        max-width: 900px;
+        margin: 20px auto;
+        border-radius: 10px;
+        border: 1px solid #ccc;
     }
     
-    .form-container h1 { 
-        color: #0f172a; 
-        border-bottom: 2px solid #e2e8f0; 
-        padding-bottom: 10px; 
-        margin-bottom: 20px;
+    .formulario-caja h1 {
+        color: #000000 !important;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 10px;
     }
 
-    /* Forzar que los inputs y selects tengan fondo blanco y texto negro */
-    .form-container input, 
-    .form-container select { 
-        color: #000000 !important; 
-        background-color: #ffffff !important; 
-        border: 2px solid #cbd5e1 !important; 
-        padding: 10px !important;
-        border-radius: 6px;
-        width: 100%;
-        font-size: 15px;
-        box-sizing: border-box;
-    }
-
-    /* Cuando se hace clic en el campo, el borde se pone azul */
-    .form-container input:focus, 
-    .form-container select:focus {
-        border-color: #2563eb !important;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-    }
-
-    /* Etiquetas de los campos */
-    .form-container label { 
-        color: #1e293b !important; 
-        font-weight: 700; 
+    /* Etiquetas (Cliente, Vendedor, etc) */
+    .formulario-caja label {
+        color: #000000 !important;
+        font-weight: bold !important;
         font-size: 14px;
         margin-bottom: 5px;
         display: block;
     }
-    
-    /* Espaciado entre filas */
-    .form-container p { 
-        margin-bottom: 15px; 
+
+    /* Cajas de texto y desplegables */
+    .formulario-caja input, 
+    .formulario-caja select,
+    .formulario-caja option {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #999 !important;
+        padding: 10px !important;
+        font-size: 15px !important;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 5px;
     }
-    
-    /* Ajuste para el grid */
-    .grid-2 { 
-        display: grid; 
-        grid-template-columns: 1fr 1fr; 
-        gap: 20px; 
+
+    /* Cuando haces clic en el desplegable */
+    .formulario-caja select:focus {
+        border-color: #2563eb !important;
+        outline: none;
     }
-    .grid-full { 
-        grid-column: span 2; 
-        margin-top: 10px;
+
+    .formulario-caja p {
+        margin-bottom: 15px;
+    }
+
+    .fila-doble {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
     }
 </style>
 
-<div class="form-container">
+<div class="formulario-caja">
     <h1>Formalizar Venta: Lote {{ lot.number }}</h1>
     
     {% if es_reserva %}
@@ -83,8 +74,7 @@
     <form method="post">
         {% csrf_token %}
         
-        <!-- Bloque de 2 columnas para los datos numéricos y de modalidad -->
-        <div class="grid-2">
+        <div class="fila-doble">
             <div>{{ form.sale_type.label_tag }} {{ form.sale_type }}</div>
             <div>{{ form.final_price.label_tag }} {{ form.final_price }}</div>
             
@@ -95,24 +85,24 @@
             <div>{{ form.monthly_interest_rate.label_tag }} {{ form.monthly_interest_rate }}</div>
         </div>
 
-        <!-- Cliente y Vendedor ocupan una fila completa para que se lean bien -->
-        <div class="grid-full">
+        <div style="margin-top: 15px;">
             {{ form.client.label_tag }} 
             {{ form.client }}
         </div>
-        <div class="grid-full">
+        
+        <div style="margin-top: 15px;">
             {{ form.seller.label_tag }} 
             {{ form.seller }}
         </div>
 
-        <div style="margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap;">
-            <button type="submit" style="background: #16a34a; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">
+        <div style="margin-top: 30px; display: flex; gap: 15px;">
+            <button type="submit" style="background: #16a34a; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">
                 Guardar Venta y Generar Cuotas
             </button>
             
             {% if es_reserva %}
-                <a href="{% url 'desistir_reserva' lot.id %}" onclick="return confirm('¿Seguro que el cliente desiste? El lote volverá a estar Disponible.')" style="background: #dc2626; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 16px; font-weight: bold;">
-                    Cliente Desiste (Cancelar Reserva)
+                <a href="{% url 'desistir_reserva' lot.id %}" onclick="return confirm('¿Seguro que el cliente desiste?')" style="background: #dc2626; color: white; padding: 12px 24px; border-radius: 5px; text-decoration: none; font-size: 16px; font-weight: bold;">
+                    Cliente Desiste
                 </a>
             {% endif %}
         </div>
