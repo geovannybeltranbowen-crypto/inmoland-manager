@@ -84,11 +84,11 @@ class VentaFinalForm(forms.ModelForm):
             self.fields['client'].initial = reserva.client
             self.fields['seller'].initial = reserva.seller
             self.fields['final_price'].initial = self.lot.sale_price
-    # ¡AGREGA ESTO JUSTO DEBAJO DEL __init__!
-        def clean_final_price(self):
+
+    # --- FUNCIONES PARA EVITAR ERRORES DE COMAS ---
+    def clean_final_price(self):
         valor = self.cleaned_data.get('final_price')
         if valor:
-            # Si por alguna razón llega como texto con coma, lo convertimos
             if isinstance(valor, str):
                 valor = valor.replace(',', '.')
             return valor
@@ -101,6 +101,7 @@ class VentaFinalForm(forms.ModelForm):
                 valor = valor.replace(',', '.')
             return valor
         return valor
+    # ----------------------------------------------
 
     def clean(self):
         cleaned_data = super().clean()
