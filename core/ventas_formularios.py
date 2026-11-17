@@ -62,6 +62,7 @@ def nueva_reserva(request):
 class VentaFinalForm(forms.ModelForm):
     final_price = forms.CharField(label="Precio Final Acordado ($)", required=True)
     initial_payment = forms.CharField(label="Abono Inicial o Entrega ($)", required=False)
+    use_required_attribute = False 
     class Meta:
         model = Sale
         fields = [
