@@ -10,6 +10,7 @@ from core.gestion_lotes_views import importar_lotes, lista_cuadras, plano_refere
 from core.ventas_views import lista_ventas
 from core.pagos_views import registrar_pago_cuota, anular_pago
 from core.importar_clientes_views import importar_clientes
+from core.ventas_formularios import nueva_reserva, registrar_venta_final, desistir_reserva
 from core.reportes_views import (
     index as reportes_index,
     cartera as reporte_cartera,
@@ -66,6 +67,9 @@ urlpatterns = [
     path("reportes/sri/", reporte_sri, name="reporte_sri"),
     path("reportes/sri/excel/", reporte_sri_excel, name="reporte_sri_excel"),
     path("importar-clientes/", importar_clientes, name="importar_clientes"),
+    path("nueva-reserva/", nueva_reserva, name="nueva_reserva"),
+    path("venta-final/<int:lot_id>/", registrar_venta_final, name="registrar_venta_final"),
+    path("desistir-reserva/<int:lot_id>/", desistir_reserva, name="desistir_reserva"),
 ]
 
 if settings.DEBUG:

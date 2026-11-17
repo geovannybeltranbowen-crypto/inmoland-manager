@@ -165,11 +165,22 @@
         function showLotDetails(lot) {
             if (!detailHost) return;
             
-            // Lógica para el botón de venta
-            let botonVenta = '';
+            let botonAccion = '';
+            
+            // Si está Disponible -> Botones de Reservar o Venta Directa
             if (lot.status === 'available') {
-                const url = `/admin/core/sale/add/?project={{ project.id }}&lot=${lot.id}`;
-                botonVenta = `<div style="margin-top:15px;"><a href="${url}" style="display:block;text-align:center;background:#2563eb;color:white;padding:10px;border-radius:6px;text-decoration:none;font-weight:bold;">Registrar venta</a></div>`;
+                botonAccion = `
+                    <div style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
+                        <a href="/nueva-reserva/?lot=${lot.id}" style="display:block;text-align:center;background:#2563eb;color:white;padding:10px;border-radius:6px;text-decoration:none;font-weight:bold;">Hacer Reserva</a>
+                        <a href="/venta-final/${lot.id}/" style="display:block;text-align:center;background:#16a34a;color:white;padding:10px;border-radius:6px;text-decoration:none;font-weight:bold;">Venta Directa (Contado/Crédito)</a>
+                    </div>`;
+            } 
+            // Si está Separado -> Botones de Formalizar Venta
+            else if (lot.status === 'reserved') {
+                botonAccion = `
+                    <div style="margin-top:15px; display:flex; flex-direction:column; gap:10px;">
+                        <a href="/venta-final/${lot.id}/" style="display:block;text-align:center;background:#16a34a;color:white;padding:10px;border-radius:6px;text-decoration:none;font-weight:bold;">Formalizar Venta (Promesa)</a>
+                    </div>`;
             }
 
             detailHost.innerHTML = `
@@ -181,7 +192,7 @@
                     <dt>Precio</dt><dd>${money(lot.price)}</dd>
                     <dt>Estado</dt><dd><span style="background:#e2e8f0;padding:2px 6px;border-radius:4px;">${lot.statusLabel}</span></dd>
                 </dl>
-                ${botonVenta}`;
+                ${botonAccion}`;
         }
 
         // Dibujar marcadores en el plano

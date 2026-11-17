@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div style="max-width: 600px; margin: 20px auto; background: white; padding: 30px; border-radius: 10px; border: 1px solid #ccc;">
+    <h1>Nueva Reserva de Lote</h1>
+    <p style="color: #666;">Selecciona el lote y el cliente. El sistema cambiará el estado del lote a "Separado" automáticamente.</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" style="margin-top: 20px; background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+            Guardar Reserva
+        </button>
+    </form>
+</div>
+{% endblock %}
