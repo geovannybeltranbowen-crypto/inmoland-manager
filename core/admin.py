@@ -212,10 +212,9 @@ class SaleAdminForm(forms.ModelForm):
         final_price = cleaned_data.get("final_price")
         initial_payment = cleaned_data.get("initial_payment")
         credit_months = cleaned_data.get("credit_months")
-        interest_type = cleaned_data.get("interest_type")
-        monthly_interest_rate = cleaned_data.get(
-            "monthly_interest_rate"
-        )
+        
+        # interest_type = cleaned_data.get("interest_type")
+        # monthly_interest_rate = cleaned_data.get("monthly_interest_rate")
 
         if sale_type == Sale.SaleType.CREDIT:
             if (
