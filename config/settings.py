@@ -121,16 +121,15 @@ WINDOWS = {
 SITE_URL = "/"
 SITE_ID = 1
 
-import cloudinary
+# Configuración de Cloudinary para guardar las imágenes
 
-cloudinary.config(
-    cloud_name="sctgqkaj",
-    api_key="539846231241468",
-    api_secret="4tp-exZn-zKQuolxZxyrO4b0_BM",
-    secure=True
-)
 
-# Usar el método moderno de Django (STORAGES) en lugar de DEFAULT_FILE_STORAGE
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'sctgqkaj',
+    'API_KEY': '539846231241468',
+    'API_SECRET': '4tp-exZn-zKQuolxZxyrO4b0_BM',
+}
+
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
