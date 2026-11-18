@@ -120,59 +120,23 @@ class SaleAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Determinar el proyecto del lote actual al editar una venta.
-        project_id = None
-
+        # 1. Si estamos editando una venta existente, fijamos el proyecto y el lote
         if self.instance.pk and self.instance.lot_id:
-            project_id = self.instance.lot.project_id
+            self.fields['project'].initial = self.instance.lot.project_id
+            self.fields['lot'].initial = self.instance.lot_id
+            
+            # Hacemos que los campos sean de solo lectura para que no se puedan cambiar por error
+            self.fields['project'].disabled = True
+            self.fields['lot'].disabled = True
 
-        # Al enviar el formulario, respetar el proyecto elegido.
-        if self.is_bound:
-            project_id = self.data.get("project") or None
+        # 2. Si es una venta nueva, mostramos los lotes disponibles
         else:
-            project_id = (
-                self.initial.get("project")
-                or self.initial.get("lot")
-                or project_id
-            )
-
-        # Si el lote llega desde el mapa, conservar su proyecto.
-        lot_id = (
-            self.data.get("lot")
-            if self.is_bound
-            else self.initial.get("lot")
-        )
-
-        if not project_id and lot_id:
-            project_id = (
-                Lot.objects.filter(pk=lot_id)
-                .values_list("project_id", flat=True)
-                .first()
-            )
-
-        # Mostrar solamente lotes del proyecto elegido.
-        lotes = Lot.objects.none()
-
-        if project_id:
-            lotes = Lot.objects.filter(project_id=project_id)
-
-            if self.instance.pk and self.instance.lot_id:
-                lotes = lotes.filter(
-                    models.Q(status=Lot.Status.AVAILABLE)
-                    | models.Q(pk=self.instance.lot_id)
-                )
-            else:
-                lotes = lotes.filter(status=Lot.Status.AVAILABLE)
-
-        self.fields["lot"].queryset = lotes.order_by("number")
-
-        # Seleccionar el lote que llega desde el mapa.
-        if lot_id:
-            self.initial["lot"] = lot_id
-
-        # Mantener seleccionado el proyecto.
-        if project_id:
-            self.initial["project"] = project_id
+            project_id = self.data.get("project") if self.is_bound else self.initial.get("project")
+            lotes = Lot.objects.none()
+            if project_id:
+                lotes = Lot.objects.filter(project_id=project_id, status=Lot.Status.AVAILABLE)
+            
+            self.fields["lot"].queryset = lotes.order_by("number")
 
     def clean_lot(self):
         lot = self.cleaned_data.get("lot")
