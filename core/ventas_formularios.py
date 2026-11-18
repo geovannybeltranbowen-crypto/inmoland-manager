@@ -60,7 +60,7 @@ def nueva_reserva(request):
 # 2. FORMULARIO Y VISTA DE VENTA FINAL
 # ==========================================
 class VentaFinalForm(forms.ModelForm):
-    # Al usar CharField, Django no valida decimales, solo texto.
+    # Usamos CharField para que Django no intente validar los decimales automáticamente
     final_price = forms.CharField(label="Precio Final Acordado ($)", required=True)
     initial_payment = forms.CharField(label="Abono Inicial o Entrega ($)", required=False)
     
@@ -79,15 +79,16 @@ class VentaFinalForm(forms.ModelForm):
             reserva = self.lot.sales.first()
             self.fields['client'].initial = reserva.client
             self.fields['seller'].initial = reserva.seller
+            # Convertimos a string para que no haya conflicto
             self.fields['final_price'].initial = str(self.lot.sale_price)
 
-    # Convertimos el texto a número manualmente y limpiamos la coma
     def clean_final_price(self):
         valor = self.cleaned_data.get('final_price')
         if valor:
+            # Reemplazamos la coma por punto y redondeamos a 2 decimales sí o sí
             valor = str(valor).replace(',', '.')
             try:
-                return float(valor)
+                return round(float(valor), 2)
             except ValueError:
                 raise forms.ValidationError("Escribe un número válido.")
         return valor
@@ -97,7 +98,7 @@ class VentaFinalForm(forms.ModelForm):
         if valor:
             valor = str(valor).replace(',', '.')
             try:
-                return float(valor)
+                return round(float(valor), 2)
             except ValueError:
                 raise forms.ValidationError("Escribe un número válido.")
         return valor
