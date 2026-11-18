@@ -288,23 +288,28 @@ class SaleAdmin(admin.ModelAdmin):
     inlines = [PaymentInline, InstallmentInline]
 
     
-    @admin.action(description="Generar calendario de cuotas")
+    @admin.action(description="Generar calendario de cuotas (Limpiando anteriores)")
     def generate_installments_action(self, request, queryset):
         created = 0
         errors = []
 
         for sale in queryset:
             try:
+                # --- AQUÍ ESTÁ LA MAGIA ---
+                # 1. Borramos cualquier cuota vieja para evitar el error Duplicate
+                sale.installments.all().delete()
+                
+                # 2. Ahora sí, generamos las nuevas
                 created += sale.generate_installments()
             except ValidationError as exc:
-                errors.append(
-                    f"Venta {sale.pk}: {exc}"
-                )
+                errors.append(f"Venta {sale.pk}: {exc}")
+            except Exception as exc:
+                errors.append(f"Venta {sale.pk}: Error inesperado - {exc}")
 
         if created:
             self.message_user(
                 request,
-                f"Se generaron {created} cuotas.",
+                f"Se generaron {created} cuotas correctamente.",
                 level=messages.SUCCESS,
             )
 
