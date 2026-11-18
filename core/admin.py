@@ -419,7 +419,7 @@ class InstallmentAdmin(admin.ModelAdmin):
         InstallmentLotFilter,
         "status",
         "due_date",
-        "SoloLotesConCuotasFilter",  # <-- AÑADE ESTA LÍNEA
+        SoloLotesConCuotasFilter,  # <-- AÑADE ESTA LÍNEA
     )
 
     search_fields = (
