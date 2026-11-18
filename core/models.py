@@ -289,17 +289,25 @@ class Sale(models.Model):
                         principal = remaining_balance
                         amount = principal + interest
 
-                principal = principal.quantize(
-                    Decimal("0.01"),
-                    rounding=ROUND_HALF_UP,
+                principal = principal.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                interest = interest.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                amount = (principal + interest).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                
+                # --- AQUÍ ESTÁ EL ARREGLO ---
+                # Forzamos a que el saldo restante también tenga 2 decimales exactos
+                remaining_balance = (remaining_balance - principal).quantize(
+                    Decimal("0.01"), rounding=ROUND_HALF_UP
                 )
-                interest = interest.quantize(
-                    Decimal("0.01"),
-                    rounding=ROUND_HALF_UP,
-                )
-                amount = (principal + interest).quantize(
-                    Decimal("0.01"),
-                    rounding=ROUND_HALF_UP,
+
+                installments.append(
+                    Installment(
+                        sale=sale,
+                        number=number,
+                        due_date=due_date,
+                        principal_amount=principal,
+                        interest_amount=interest,
+                        amount=amount,
+                    )
                 )
 
                 installments.append(
