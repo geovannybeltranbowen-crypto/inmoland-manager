@@ -188,68 +188,40 @@ class Sale(models.Model):
     def generate_installments(self):
         """
         Genera el calendario de una venta a crédito.
-        No modifica calendarios que ya existan.
+        Limpia las cuotas viejas si existen y crea las nuevas una por una.
         """
         from calendar import monthrange
         from decimal import ROUND_HALF_UP
         from django.db import transaction
 
         with transaction.atomic():
-            if self.etapa == Sale.Etapa.RESERVA:
-                raise ValidationError(
-                    "No se pueden generar cuotas para una reserva. "
-                    "Primero debe convertirse en Promesa o Venta Definitiva."
-                )
+            # 1. Bloqueamos la venta para evitar que se edite mientras generamos
             sale = Sale.objects.select_for_update().get(pk=self.pk)
 
             if sale.sale_type != Sale.SaleType.CREDIT:
-                raise ValidationError(
-                    "Solo se puede generar un calendario para ventas a crédito."
-                )
-
-            if sale.installments.exists():
-                raise ValidationError(
-                    "Esta venta ya tiene cuotas programadas. "
-                    "No se generará otro calendario."
-                )
+                raise ValidationError("Solo se puede generar un calendario para ventas a crédito.")
+            
+            # 2. BORRAMOS CUALQUIER CUOTA VIEJA (Esto limpia el error Duplicate)
+            Installment.objects.filter(sale=sale).delete()
 
             if sale.credit_months < 1:
-                raise ValidationError(
-                    "El plazo del crédito debe ser de al menos un mes."
-                )
-
+                raise ValidationError("El plazo del crédito debe ser de al menos un mes.")
             if sale.initial_payment < 0 or sale.initial_payment > sale.final_price:
-                raise ValidationError(
-                    "El abono inicial debe estar entre cero y el precio de venta."
-                )
+                raise ValidationError("El abono inicial debe estar entre cero y el precio de venta.")
 
             balance = sale.final_price - sale.initial_payment
-
             if balance <= 0:
-                raise ValidationError(
-                    "No existe saldo pendiente para financiar."
-                )
+                raise ValidationError("No existe saldo pendiente para financiar.")
 
             months = sale.credit_months
-            rate = (
-                sale.monthly_interest_rate / Decimal("100")
-                if sale.interest_type == "monthly_rate"
-                else Decimal("0")
-            )
+            rate = (sale.monthly_interest_rate / Decimal("100") if sale.interest_type == "monthly_rate" else Decimal("0"))
 
             if rate > 0:
-                payment_amount = (
-                    balance * rate
-                    / (Decimal("1") - (Decimal("1") + rate) ** (-months))
-                )
+                payment_amount = (balance * rate / (Decimal("1") - (Decimal("1") + rate) ** (-months)))
             else:
                 payment_amount = balance / months
 
-            payment_amount = payment_amount.quantize(
-                Decimal("0.01"),
-                rounding=ROUND_HALF_UP,
-            )
-
+            payment_amount = payment_amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             start_date = sale.sale_date
             installments = []
             remaining_balance = balance
@@ -258,23 +230,11 @@ class Sale(models.Model):
                 month_index = start_date.month - 1 + number
                 year = start_date.year + month_index // 12
                 month = month_index % 12 + 1
-                day = min(
-                    start_date.day,
-                    monthrange(year, month)[1],
-                )
-                due_date = start_date.replace(
-                    year=year,
-                    month=month,
-                    day=day,
-                )
+                day = min(start_date.day, monthrange(year, month)[1])
+                due_date = start_date.replace(year=year, month=month, day=day)
 
                 if rate > 0:
-                    interest = (
-                        remaining_balance * rate
-                    ).quantize(
-                        Decimal("0.01"),
-                        rounding=ROUND_HALF_UP,
-                    )
+                    interest = (remaining_balance * rate).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
                 else:
                     interest = Decimal("0.00")
 
@@ -284,7 +244,6 @@ class Sale(models.Model):
                 else:
                     amount = payment_amount
                     principal = amount - interest
-
                     if principal > remaining_balance:
                         principal = remaining_balance
                         amount = principal + interest
@@ -293,11 +252,7 @@ class Sale(models.Model):
                 interest = interest.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
                 amount = (principal + interest).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
                 
-                # --- AQUÍ ESTÁ EL ARREGLO ---
-                # Forzamos a que el saldo restante también tenga 2 decimales exactos
-                remaining_balance = (remaining_balance - principal).quantize(
-                    Decimal("0.01"), rounding=ROUND_HALF_UP
-                )
+                remaining_balance = (remaining_balance - principal).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
                 installments.append(
                     Installment(
@@ -310,22 +265,11 @@ class Sale(models.Model):
                     )
                 )
 
-                installments.append(
-                    Installment(
-                        sale=sale,
-                        number=number,
-                        due_date=due_date,
-                        principal_amount=principal,
-                        interest_amount=interest,
-                        amount=amount,
-                    )
-                )
+            # 3. GUARDAMOS UNA POR UNA (Evita el error de bulk_create)
+            for inst in installments:
+                inst.save()
 
-                remaining_balance -= principal
-
-            Installment.objects.bulk_create(installments)
-
-        return len(installments)
+            return len(installments)
 
     def delete(self, *args, **kwargs):
         # Antes de borrar la venta, liberamos el lote
