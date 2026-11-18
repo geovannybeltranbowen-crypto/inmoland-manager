@@ -327,6 +327,13 @@ class Sale(models.Model):
 
         return len(installments)
 
+    def delete(self, *args, **kwargs):
+        # Antes de borrar la venta, liberamos el lote
+        lote = self.lot
+        lote.status = Lot.Status.AVAILABLE
+        lote.save(update_fields=["status"])
+        # Ahora sí, borramos la venta
+        super().delete(*args, **kwargs)
     
     def refresh_commission(self):
         commission, _ = Commission.objects.get_or_create(
