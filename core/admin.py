@@ -260,6 +260,7 @@ class SaleAdmin(admin.ModelAdmin):
         "sale_type",
         "etapa",
         "sale_date",
+        "first_due_date",  # <-- AÑADIR AQUÍ
         "final_price",
         "initial_payment",
         "credit_months",
