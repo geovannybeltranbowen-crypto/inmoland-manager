@@ -140,6 +140,9 @@ def registrar_venta_final(request, lot_id):
 
             if sale.sale_type == Sale.SaleType.CREDIT:
                 try:
+                    # Borrar cuotas viejas si es que quedaron a medias
+                    sale.installments.all().delete()
+                    # Generar las nuevas
                     sale.generate_installments()
                     messages.success(request, "Venta registrada a crédito y calendario de cuotas generado.")
                 except Exception as e:
