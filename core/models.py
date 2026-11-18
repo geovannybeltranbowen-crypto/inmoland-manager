@@ -125,6 +125,12 @@ class Sale(models.Model):
     seller = models.ForeignKey(Seller, on_delete=models.PROTECT, related_name="sales", verbose_name="Vendedor")
     sale_type = models.CharField("Modalidad", max_length=10, choices=SaleType.choices)
     sale_date = models.DateField("Fecha de venta", default=timezone.localdate)
+    first_due_date = models.DateField(
+        "Fecha de primer vencimiento", 
+        null=True, 
+        blank=True, 
+        help_text="Si se deja vacío, se usará la fecha de venta."
+    )
     final_price = models.DecimalField("Precio final", max_digits=14, decimal_places=2, validators=[MinValueValidator(0)])
     initial_payment = models.DecimalField("Abono inicial", max_digits=14, decimal_places=2, default=0, validators=[MinValueValidator(0)])
         # Configuración del crédito
@@ -222,7 +228,7 @@ class Sale(models.Model):
                 payment_amount = balance / months
 
             payment_amount = payment_amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-            start_date = sale.sale_date
+            start_date = sale.first_due_date if sale.first_due_date else sale.sale_date
             installments = []
             remaining_balance = balance
 

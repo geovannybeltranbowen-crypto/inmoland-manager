@@ -70,6 +70,7 @@ class VentaFinalForm(forms.ModelForm):
         fields = [
             'client', 'seller', 'sale_type', 'final_price', 
             'initial_payment', 'credit_months', 'interest_type', 'monthly_interest_rate'
+            'first_due_date',  # <-- AÑADIR AQUÍ
         ]
 
     def __init__(self, *args, **kwargs):

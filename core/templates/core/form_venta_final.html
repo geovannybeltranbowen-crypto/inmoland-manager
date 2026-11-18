@@ -64,6 +64,11 @@
         
         <div class="fila-doble">
             <div>
+                {{ form.first_due_date.label_tag }} 
+                {{ form.first_due_date }}
+                <small class="texto-ayuda">Fecha en que vence la primera cuota.</small>
+            </div>
+            <div>
                 {{ form.sale_type.label_tag }} 
                 {{ form.sale_type }}
             </div>
