@@ -382,7 +382,23 @@ class InstallmentLotFilter(admin.SimpleListFilter):
         if self.value():
             return queryset.filter(sale__lot_id=self.value())
         return queryset 
- 
+
+class SoloLotesConCuotasFilter(admin.SimpleListFilter):
+    title = "Lotes con cuotas programadas"
+    parameter_name = "con_cuotas"
+
+    def lookups(self, request, model_admin):
+        # Solo mostramos esta opción, no hay más que elegir
+        return (
+            ("si", "Solo lotes con cuotas generadas"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "si":
+            # Filtra las cuotas que pertenecen a lotes que tienen más de 0 cuotas
+            return queryset.filter(sale__lot__in=queryset.values('sale__lot'))
+        return queryset
+     
 @admin.register(Installment)
 class InstallmentAdmin(admin.ModelAdmin):
     list_display = (
@@ -403,6 +419,7 @@ class InstallmentAdmin(admin.ModelAdmin):
         InstallmentLotFilter,
         "status",
         "due_date",
+        "SoloLotesConCuotasFilter",  # <-- AÑADE ESTA LÍNEA
     )
 
     search_fields = (
