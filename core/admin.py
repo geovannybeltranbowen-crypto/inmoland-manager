@@ -207,14 +207,10 @@ class SaleAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-
         sale_type = cleaned_data.get("sale_type")
         final_price = cleaned_data.get("final_price")
         initial_payment = cleaned_data.get("initial_payment")
         credit_months = cleaned_data.get("credit_months")
-        
-        # interest_type = cleaned_data.get("interest_type")
-        # monthly_interest_rate = cleaned_data.get("monthly_interest_rate")
 
         if sale_type == Sale.SaleType.CREDIT:
             if (
@@ -231,16 +227,6 @@ class SaleAdminForm(forms.ModelForm):
                 self.add_error(
                     "credit_months",
                     "El plazo debe ser de al menos un mes.",
-                )
-
-            if (
-                interest_type == "monthly_rate"
-                and monthly_interest_rate is not None
-                and monthly_interest_rate <= 0
-            ):
-                self.add_error(
-                    "monthly_interest_rate",
-                    "La tasa mensual debe ser mayor que cero.",
                 )
 
         return cleaned_data
