@@ -81,7 +81,8 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-LANGUAGE_CODE = "es-ec"
+LANGUAGE_CODE = "en-us"
+USE_L10N = False
 TIME_ZONE = "America/Guayaquil"
 USE_I18N = True
 USE_TZ = True

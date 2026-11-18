@@ -60,23 +60,16 @@ def nueva_reserva(request):
 # 2. FORMULARIO Y VISTA DE VENTA FINAL
 # ==========================================
 class VentaFinalForm(forms.ModelForm):
+    # Al usar CharField, Django no valida decimales, solo texto.
     final_price = forms.CharField(label="Precio Final Acordado ($)", required=True)
     initial_payment = forms.CharField(label="Abono Inicial o Entrega ($)", required=False)
-    use_required_attribute = False 
+    
     class Meta:
         model = Sale
         fields = [
             'client', 'seller', 'sale_type', 'final_price', 
             'initial_payment', 'credit_months', 'interest_type', 'monthly_interest_rate'
         ]
-        labels = {
-            'sale_type': 'Modalidad (Contado o Crédito)',
-            'final_price': 'Precio Final Acordado ($)',
-            'initial_payment': 'Abono Inicial o Entrega ($)',
-            'credit_months': 'Plazo del Crédito (Meses)',
-            'interest_type': 'Tipo de Interés',
-            'monthly_interest_rate': 'Tasa Mensual (%)',
-        }
 
     def __init__(self, *args, **kwargs):
         self.lot = kwargs.pop('lot', None)
@@ -86,29 +79,28 @@ class VentaFinalForm(forms.ModelForm):
             reserva = self.lot.sales.first()
             self.fields['client'].initial = reserva.client
             self.fields['seller'].initial = reserva.seller
-            self.fields['final_price'].initial = self.lot.sale_price
+            self.fields['final_price'].initial = str(self.lot.sale_price)
 
-    # --- FUNCIONES PARA EVITAR ERRORES DE COMAS ---
+    # Convertimos el texto a número manualmente y limpiamos la coma
     def clean_final_price(self):
         valor = self.cleaned_data.get('final_price')
         if valor:
-            valor = str(valor).replace(',', '.') # Cambia la coma por punto
+            valor = str(valor).replace(',', '.')
             try:
                 return float(valor)
             except ValueError:
-                raise forms.ValidationError("Escribe un número válido (ej. 24760.80)")
+                raise forms.ValidationError("Escribe un número válido.")
         return valor
 
     def clean_initial_payment(self):
         valor = self.cleaned_data.get('initial_payment')
         if valor:
-            valor = str(valor).replace(',', '.') # Cambia la coma por punto
+            valor = str(valor).replace(',', '.')
             try:
                 return float(valor)
             except ValueError:
-                raise forms.ValidationError("Escribe un número válido (ej. 12380.40)")
+                raise forms.ValidationError("Escribe un número válido.")
         return valor
-    # ----------------------------------------------
 
     def clean(self):
         cleaned_data = super().clean()
