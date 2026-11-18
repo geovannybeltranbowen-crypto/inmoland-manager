@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from .models import Sale, Lot, Client, Seller
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 # ==========================================
 # 1. FORMULARIO Y VISTA DE RESERVA
