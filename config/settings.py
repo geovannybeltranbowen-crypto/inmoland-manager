@@ -18,7 +18,9 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    'cloudinary_storage',      # <-- ANTES de staticfiles
     "django.contrib.staticfiles",
+    'cloudinary',
     "django.contrib.sites",
     "core",
     "django_binary_builder",
@@ -118,3 +120,22 @@ WINDOWS = {
 # URL a la que apunta el botón "Ver el sitio" del admin
 SITE_URL = "/"
 SITE_ID = 1
+
+import cloudinary
+
+cloudinary.config(
+    cloud_name="sctgqkaj",
+    api_key="539846231241468",
+    api_secret="4tp-exZn-zKQuolxZxyrO4b0_BM",
+    secure=True
+)
+
+# Usar el método moderno de Django (STORAGES) en lugar de DEFAULT_FILE_STORAGE
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
