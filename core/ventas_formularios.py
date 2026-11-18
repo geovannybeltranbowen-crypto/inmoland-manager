@@ -82,26 +82,25 @@ class VentaFinalForm(forms.ModelForm):
             # Convertimos a string para que no haya conflicto
             self.fields['final_price'].initial = str(self.lot.sale_price)
 
+    def _a_decimal(self, valor):
+        """Convierte texto con coma o punto a Decimal con 2 decimales exactos."""
+        valor = str(valor).strip().replace(',', '.')
+        try:
+            return Decimal(valor).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        except InvalidOperation:
+            raise forms.ValidationError("Escribe un número válido.")
+
     def clean_final_price(self):
         valor = self.cleaned_data.get('final_price')
-        if valor:
-            # Reemplazamos la coma por punto y redondeamos a 2 decimales sí o sí
-            valor = str(valor).replace(',', '.')
-            try:
-                return round(float(valor), 2)
-            except ValueError:
-                raise forms.ValidationError("Escribe un número válido.")
+        if valor not in (None, ''):
+            return self._a_decimal(valor)
         return valor
 
     def clean_initial_payment(self):
         valor = self.cleaned_data.get('initial_payment')
-        if valor:
-            valor = str(valor).replace(',', '.')
-            try:
-                return round(float(valor), 2)
-            except ValueError:
-                raise forms.ValidationError("Escribe un número válido.")
-        return valor
+        if valor not in (None, ''):
+            return self._a_decimal(valor)
+        return Decimal('0.00')
 
     def clean(self):
         cleaned_data = super().clean()

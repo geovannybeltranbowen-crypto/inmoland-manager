@@ -6,6 +6,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import render
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 from .models import Project, Lot, Client, Sale, Payment, Commission
 
