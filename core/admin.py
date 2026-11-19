@@ -211,6 +211,7 @@ class SaleAdmin(admin.ModelAdmin):
         "etapa",
         "sale_date",
         "first_due_date",  # <-- AÑADIR AQUÍ
+        "initial_irregular_payments"
         "final_price",
         "initial_payment",
         "credit_months",

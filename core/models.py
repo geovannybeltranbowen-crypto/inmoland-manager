@@ -131,6 +131,12 @@ class Sale(models.Model):
         blank=True, 
         help_text="Si se deja vacío, se usará la fecha de venta."
     )
+    initial_irregular_payments = models.CharField(
+        "Cuotas iniciales irregulares (separadas por coma)", 
+        max_length=255, 
+        blank=True, 
+        help_text="Ej: 1000, 1000, 11249.42"
+    )
     final_price = models.DecimalField("Precio final", max_digits=14, decimal_places=2, validators=[MinValueValidator(0)])
     initial_payment = models.DecimalField("Abono inicial", max_digits=14, decimal_places=2, default=0, validators=[MinValueValidator(0)])
         # Configuración del crédito
@@ -192,50 +198,68 @@ class Sale(models.Model):
         return max(Decimal("0.00"), target - self.total_paid)
     
     def generate_installments(self):
-        """
-        Genera el calendario de una venta a crédito.
-        Limpia las cuotas viejas si existen y crea las nuevas una por una.
-        """
         from calendar import monthrange
         from decimal import ROUND_HALF_UP
         from django.db import transaction
 
         with transaction.atomic():
-            # 1. Bloqueamos la venta para evitar que se edite mientras generamos
             sale = Sale.objects.select_for_update().get(pk=self.pk)
-
             if sale.sale_type != Sale.SaleType.CREDIT:
                 raise ValidationError("Solo se puede generar un calendario para ventas a crédito.")
             
-            # 2. BORRAMOS CUALQUIER CUOTA VIEJA (Esto limpia el error Duplicate)
+            # 1. Limpiamos cuotas viejas
             Installment.objects.filter(sale=sale).delete()
 
-            if sale.credit_months < 1:
-                raise ValidationError("El plazo del crédito debe ser de al menos un mes.")
-            if sale.initial_payment < 0 or sale.initial_payment > sale.final_price:
-                raise ValidationError("El abono inicial debe estar entre cero y el precio de venta.")
+            # 2. Procesamos las cuotas irregulares (si las hay)
+            irregular_amounts = []
+            if sale.initial_irregular_payments:
+                try:
+                    irregular_amounts = [
+                        Decimal(x.strip()) for x in sale.initial_irregular_payments.split(',') 
+                        if x.strip()
+                    ]
+                except Exception:
+                    raise ValidationError("El formato de las cuotas irregulares es incorrecto. Usa comas.")
 
-            balance = sale.final_price - sale.initial_payment
+            # 3. Calculamos el saldo a financiar (Precio - Abono - Cuotas irregulares)
+            irregular_total = sum(irregular_amounts, Decimal("0.00"))
+            balance = sale.final_price - sale.initial_payment - irregular_total
+            
             if balance <= 0:
-                raise ValidationError("No existe saldo pendiente para financiar.")
+                raise ValidationError("El saldo a financiar es cero o negativo.")
 
+            # 4. Creamos las cuotas irregulares (las primeras)
+            start_date = sale.first_due_date if sale.first_due_date else sale.sale_date
+            month_cursor = 0
+            
+            for i, amount in enumerate(irregular_amounts, start=1):
+                month_cursor += 1
+                year = start_date.year + (start_date.month - 1 + month_cursor) // 12
+                month = (start_date.month - 1 + month_cursor) % 12 + 1
+                day = min(start_date.day, monthrange(year, month)[1])
+                due_date = start_date.replace(year=year, month=month, day=day)
+
+                Installment.objects.create(
+                    sale=sale, number=i, due_date=due_date,
+                    principal_amount=amount, interest_amount=Decimal("0.00"),
+                    amount=amount,
+                )
+
+            # 5. Generamos las cuotas del crédito (las siguientes)
             months = sale.credit_months
             rate = (sale.monthly_interest_rate / Decimal("100") if sale.interest_type == "monthly_rate" else Decimal("0"))
-
             if rate > 0:
                 payment_amount = (balance * rate / (Decimal("1") - (Decimal("1") + rate) ** (-months)))
             else:
                 payment_amount = balance / months
-
             payment_amount = payment_amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-            start_date = sale.first_due_date if sale.first_due_date else sale.sale_date
-            installments = []
-            remaining_balance = balance
 
-            for number in range(1, months + 1):
-                month_index = start_date.month - 1 + number
-                year = start_date.year + month_index // 12
-                month = month_index % 12 + 1
+            remaining_balance = balance
+            for n in range(1, months + 1):
+                number = len(irregular_amounts) + n # Numeración continúa después de las irregulares
+                month_cursor += 1
+                year = start_date.year + (start_date.month - 1 + month_cursor) // 12
+                month = (start_date.month - 1 + month_cursor) % 12 + 1
                 day = min(start_date.day, monthrange(year, month)[1])
                 due_date = start_date.replace(year=year, month=month, day=day)
 
@@ -244,38 +268,24 @@ class Sale(models.Model):
                 else:
                     interest = Decimal("0.00")
 
-                if number == months:
+                if n == months:
                     principal = remaining_balance
                     amount = principal + interest
                 else:
                     amount = payment_amount
                     principal = amount - interest
-                    if principal > remaining_balance:
-                        principal = remaining_balance
-                        amount = principal + interest
-
+                
                 principal = principal.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
                 interest = interest.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
                 amount = (principal + interest).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-                
                 remaining_balance = (remaining_balance - principal).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
-                installments.append(
-                    Installment(
-                        sale=sale,
-                        number=number,
-                        due_date=due_date,
-                        principal_amount=principal,
-                        interest_amount=interest,
-                        amount=amount,
-                    )
+                Installment.objects.create(
+                    sale=sale, number=number, due_date=due_date,
+                    principal_amount=principal, interest_amount=interest, amount=amount,
                 )
 
-            # 3. GUARDAMOS UNA POR UNA (Evita el error de bulk_create)
-            for inst in installments:
-                inst.save()
-
-            return len(installments)
+            return len(irregular_amounts) + months
 
     def delete(self, *args, **kwargs):
         # Antes de borrar la venta, liberamos el lote

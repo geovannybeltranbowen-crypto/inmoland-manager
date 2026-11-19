@@ -72,6 +72,7 @@ class VentaFinalForm(forms.ModelForm):
              'initial_payment', 'credit_months', 'interest_type', 
              'monthly_interest_rate', 
              'first_due_date',
+             'initial_irregular_payments',
         ]
 
     def __init__(self, *args, **kwargs):
