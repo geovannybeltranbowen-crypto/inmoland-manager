@@ -61,6 +61,14 @@ def nueva_reserva(request):
 # 2. FORMULARIO Y VISTA DE VENTA FINAL
 # ==========================================
 class VentaFinalForm(forms.ModelForm):
+    
+    first_due_date = forms.DateField(
+        label="Fecha de Primer Vencimiento",
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+
+
     # Usamos CharField para que Django no intente validar los decimales automáticamente
     final_price = forms.CharField(label="Precio Final Acordado ($)", required=True)
     initial_payment = forms.CharField(label="Abono Inicial o Entrega ($)", required=False)
