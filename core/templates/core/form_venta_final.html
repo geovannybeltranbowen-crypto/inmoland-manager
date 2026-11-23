@@ -1,35 +1,34 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
 <style>
-    .formulario-caja {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        padding: 30px;
-        max-width: 900px;
-        margin: 20px auto;
-        border-radius: 10px;
-        border: 1px solid #ccc;
+    .formulario-caja { 
+        background-color: #ffffff !important; 
+        color: #000000 !important; 
+        padding: 30px; 
+        max-width: 900px; 
+        margin: 20px auto; 
+        border-radius: 10px; 
+        border: 1px solid #ccc; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     .formulario-caja h1 { color: #000000 !important; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-    .formulario-caja label { color: #000000 !important; font-weight: bold !important; font-size: 15px; margin-bottom: 8px; display: block; }
+    .formulario-caja label { color: #000000 !important; font-weight: bold !important; font-size: 14px; margin-bottom: 5px; display: block; }
     
-    /* AQUÍ ESTÁ EL ARREGLO: Forzamos la altura y el tamaño de letra */
-    .formulario-caja input, 
-    .formulario-caja select, 
-    .formulario-caja option {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border: 2px solid #999 !important;
-        padding: 10px 12px !important;
-        font-size: 16px !important; /* Letra más grande */
-        height: 45px !important;    /* Caja más alta para que respire */
-        width: 100%;
-        box-sizing: border-box;
-        border-radius: 6px;
+    .formulario-caja input, .formulario-caja select, .formulario-caja option { 
+        background-color: #ffffff !important; 
+        color: #000000 !important; 
+        border: 2px solid #999 !important; 
+        padding: 10px 12px !important; 
+        font-size: 16px !important; 
+        height: 45px !important; 
+        width: 100%; 
+        box-sizing: border-box; 
+        border-radius: 6px; 
     }
     
     .formulario-caja p { margin-bottom: 15px; }
     .fila-doble { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .fila-completa { margin-top: 15px; }
     .texto-ayuda { color: #666; font-size: 13px; display: block; margin-top: 5px; }
 </style>
 
@@ -49,25 +48,7 @@
     <form method="post">
         {% csrf_token %}
         
-        {% if form.errors %}
-            <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f87171;">
-                <strong>¡Error! Corrige esto para guardar:</strong>
-                <ul style="margin-top: 10px; margin-bottom: 0; padding-left: 20px;">
-                    {% for field, errors in form.errors.items %}
-                        {% for error in errors %}
-                            <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
-                        {% endfor %}
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
-        
         <div class="fila-doble">
-            <div>
-                {{ form.first_due_date.label_tag }} 
-                {{ form.first_due_date }}
-                <small class="texto-ayuda">Fecha en que vence la primera cuota.</small>
-            </div>
             <div>
                 {{ form.sale_type.label_tag }} 
                 {{ form.sale_type }}
@@ -81,7 +62,7 @@
             <div>
                 {{ form.initial_payment.label_tag }} 
                 {{ form.initial_payment }}
-                <small class="texto-ayuda">Usa el punto (.). Ejemplo: 12380.40</small>
+                <small class="texto-ayuda">Deja en 0 si vas a usar cuotas irregulares.</small>
             </div>
             <div>
                 {{ form.credit_months.label_tag }} 
@@ -98,12 +79,25 @@
             </div>
         </div>
 
-        <div style="margin-top: 15px;">
+        <div class="fila-doble" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+            <div>
+                {{ form.first_due_date.label_tag }} 
+                {{ form.first_due_date }}
+                <small class="texto-ayuda">Fecha de la primera cuota del crédito.</small>
+            </div>
+            <div>
+                {{ form.initial_irregular_payments.label_tag }} 
+                {{ form.initial_irregular_payments }}
+                <small class="texto-ayuda">Ej: 1000, 1000, 11249.42</small>
+            </div>
+        </div>
+
+        <div class="fila-completa">
             {{ form.client.label_tag }} 
             {{ form.client }}
         </div>
         
-        <div style="margin-top: 15px;">
+        <div class="fila-completa">
             {{ form.seller.label_tag }} 
             {{ form.seller }}
         </div>
