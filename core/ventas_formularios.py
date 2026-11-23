@@ -61,12 +61,8 @@ def nueva_reserva(request):
 # 2. FORMULARIO Y VISTA DE VENTA FINAL
 # ==========================================
 class VentaFinalForm(forms.ModelForm):
-    
-    first_due_date = forms.DateField(
-        label="Fecha de Primer Vencimiento",
-        required=False,
-        widget=forms.DateInput(attrs={'type': 'date'})
-    )
+
+    first_due_date = forms.CharField(label="Fecha de Primer Vencimiento", required=False)
 
 
     # Usamos CharField para que Django no intente validar los decimales automáticamente
@@ -108,6 +104,18 @@ class VentaFinalForm(forms.ModelForm):
             return self._a_decimal(valor)
         return valor
 
+    def clean_first_due_date(self):
+        valor = self.cleaned_data.get('first_due_date')
+        if valor:
+            import datetime
+            # Intentamos adivinar el formato de la fecha
+            for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y', '%Y/%m/%d'):
+                try:
+                    return datetime.datetime.strptime(valor, fmt).date()
+                except ValueError:
+                    continue
+            raise forms.ValidationError("Formato de fecha inválido. Usa AAAA-MM-DD o DD/MM/AAAA")
+        return None
     def clean_initial_payment(self):
         valor = self.cleaned_data.get('initial_payment')
         if valor not in (None, ''):
