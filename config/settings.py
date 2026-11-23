@@ -138,3 +138,6 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+# Forzar formatos de fecha para que acepten el formato latino (dd/mm/aaaa) o el que envíe el navegador
+DATE_INPUT_FORMATS = ['%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y', '%m/%d/%Y']
+USE_L10N = False
