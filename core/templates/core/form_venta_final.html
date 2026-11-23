@@ -47,7 +47,20 @@
 
     <form method="post">
         {% csrf_token %}
-        
+
+    {% if form.errors %}
+        <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f87171;">
+            <strong>¡Error! El sistema dice:</strong>
+            <ul style="margin-top: 10px; margin-bottom: 0; padding-left: 20px;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
         <div class="fila-doble">
             <div>
                 {{ form.sale_type.label_tag }} 
