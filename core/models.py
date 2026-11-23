@@ -210,7 +210,7 @@ class Sale(models.Model):
             # 1. Limpiamos cuotas viejas
             Installment.objects.filter(sale=sale).delete()
 
-            # 2. Procesamos las cuotas irregulares (si las hay)
+            # 2. Procesamos las cuotas irregulares
             irregular_amounts = []
             if sale.initial_irregular_payments:
                 try:
@@ -221,23 +221,24 @@ class Sale(models.Model):
                 except Exception:
                     raise ValidationError("El formato de las cuotas irregulares es incorrecto. Usa comas.")
 
-            # 3. Calculamos el saldo a financiar (Precio - Abono - Cuotas irregulares)
             irregular_total = sum(irregular_amounts, Decimal("0.00"))
             balance = sale.final_price - sale.initial_payment - irregular_total
             
             if balance <= 0:
                 raise ValidationError("El saldo a financiar es cero o negativo.")
 
-            # 4. Creamos las cuotas irregulares (las primeras)
-            start_date = sale.first_due_date if sale.first_due_date else sale.sale_date
-            month_cursor = 0
+            # 3. Fechas: Las irregulares usan la fecha de venta (sale_date)
+            # Las del crédito usan la fecha de primer vencimiento (first_due_date)
+            start_date_irregular = sale.sale_date
+            start_date_credit = sale.first_due_date if sale.first_due_date else sale.sale_date
             
+            month_cursor = 0
             for i, amount in enumerate(irregular_amounts, start=1):
                 month_cursor += 1
-                year = start_date.year + (start_date.month - 1 + month_cursor) // 12
-                month = (start_date.month - 1 + month_cursor) % 12 + 1
-                day = min(start_date.day, monthrange(year, month)[1])
-                due_date = start_date.replace(year=year, month=month, day=day)
+                year = start_date_irregular.year + (start_date_irregular.month - 1 + month_cursor) // 12
+                month = (start_date_irregular.month - 1 + month_cursor) % 12 + 1
+                day = min(start_date_irregular.day, monthrange(year, month)[1])
+                due_date = start_date_irregular.replace(year=year, month=month, day=day)
 
                 Installment.objects.create(
                     sale=sale, number=i, due_date=due_date,
@@ -245,7 +246,7 @@ class Sale(models.Model):
                     amount=amount,
                 )
 
-            # 5. Generamos las cuotas del crédito (las siguientes)
+            # 4. Generamos las cuotas del crédito
             months = sale.credit_months
             rate = (sale.monthly_interest_rate / Decimal("100") if sale.interest_type == "monthly_rate" else Decimal("0"))
             if rate > 0:
@@ -256,12 +257,14 @@ class Sale(models.Model):
 
             remaining_balance = balance
             for n in range(1, months + 1):
-                number = len(irregular_amounts) + n # Numeración continúa después de las irregulares
-                month_cursor += 1
-                year = start_date.year + (start_date.month - 1 + month_cursor) // 12
-                month = (start_date.month - 1 + month_cursor) % 12 + 1
-                day = min(start_date.day, monthrange(year, month)[1])
-                due_date = start_date.replace(year=year, month=month, day=day)
+                number = len(irregular_amounts) + n
+                month_cursor = n - 1 # Reiniciamos el cursor para las cuotas del crédito
+                
+                # Calculamos el mes de la cuota del crédito (empezando desde first_due_date)
+                year = start_date_credit.year + (start_date_credit.month - 1 + month_cursor) // 12
+                month = (start_date_credit.month - 1 + month_cursor) % 12 + 1
+                day = min(start_date_credit.day, monthrange(year, month)[1])
+                due_date = start_date_credit.replace(year=year, month=month, day=day)
 
                 if rate > 0:
                     interest = (remaining_balance * rate).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
