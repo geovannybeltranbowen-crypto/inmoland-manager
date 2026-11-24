@@ -54,6 +54,11 @@ class ReservaForm(forms.ModelForm):
             sale.lot.status = Lot.Status.RESERVED
             sale.lot.save()
         return sale
+        sale_date = forms.DateField(
+        label="Fecha de la Reserva / Venta",
+        widget=forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+        input_formats=['%Y-%m-%d']
+    )
 
 @login_required
 def nueva_reserva(request):
