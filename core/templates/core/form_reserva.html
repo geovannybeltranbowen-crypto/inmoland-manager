@@ -1,9 +1,9 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
 <style>
-    .formulario-caja { background-color: #ffffff !important; color: #000000 !important; padding: 30px; max-width: 600px; margin: 20px auto; border-radius: 10px; border: 1px solid #ccc; }
+    .formulario-caja { background-color: #ffffff !important; color: #000000 !important; padding: 30px; max-width: 600px; margin: 20px auto; border-radius: 10px; border: 1px solid #ccc; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .formulario-caja h1 { color: #000000 !important; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-    .formulario-caja label { color: #000000 !important; font-weight: bold !important; display: block; margin-bottom: 5px; }
+    .formulario-caja label { color: #000000 !important; font-weight: bold !important; display: block; margin-bottom: 5px; margin-top: 15px; }
     .formulario-caja input, .formulario-caja select, .formulario-caja option { 
         background-color: #ffffff !important; 
         color: #000000 !important; 
@@ -22,10 +22,34 @@
     
     <form method="post">
         {% csrf_token %}
-        <div style="display: flex; flex-direction: column; gap: 15px;">
-            {{ form.as_p }}
+        
+        <div>
+            {{ form.lot.label_tag }}
+            {{ form.lot }}
         </div>
-        <button type="submit" style="margin-top: 20px; background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">
+
+        <div>
+            {{ form.client.label_tag }}
+            {{ form.client }}
+        </div>
+
+        <div>
+            {{ form.seller.label_tag }}
+            {{ form.seller }}
+        </div>
+
+        <div>
+            {{ form.sale_date.label_tag }}
+            <!-- AQUÍ FORZAMOS EL CALENDARIO -->
+            <input type="date" name="sale_date" id="id_sale_date" required style="width: 100%; padding: 10px 12px; border: 2px solid #999; border-radius: 6px; height: 45px; font-size: 16px;">
+        </div>
+
+        <div>
+            {{ form.monto_reserva.label_tag }}
+            {{ form.monto_reserva }}
+        </div>
+
+        <button type="submit" style="margin-top: 20px; background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%;">
             Guardar Reserva
         </button>
     </form>
