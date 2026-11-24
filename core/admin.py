@@ -382,15 +382,7 @@ class InstallmentAdmin(admin.ModelAdmin):
         "sale__client__identification",
     )
 
-    readonly_fields = (
-        "sale",
-        "number",
-        "due_date",
-        "principal_amount",
-        "interest_amount",
-        "amount",
-        "status",
-    )
+   
 
     @admin.display(description="Lote", ordering="sale__lot__number")
     def get_lot(self, obj):
