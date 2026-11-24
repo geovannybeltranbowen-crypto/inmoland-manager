@@ -19,11 +19,12 @@ class ReservaForm(forms.ModelForm):
     
     class Meta:
         model = Sale
-        fields = ['lot', 'client', 'seller']
+        fields = ['lot', 'client', 'seller', 'sale_date']
         labels = {
             'lot': 'Lote a Reservar',
             'client': 'Cliente',
             'seller': 'Vendedor',
+            'sale_date': 'Fecha de la Reserva / Venta',  # <-- Etiqueta bonita
         }
 
     def __init__(self, *args, **kwargs):
@@ -34,7 +35,11 @@ class ReservaForm(forms.ModelForm):
         sale = super().save(commit=False)
         sale.etapa = Sale.Etapa.RESERVA
         sale.sale_type = Sale.SaleType.CASH
-        sale.sale_date = timezone.localdate()
+        
+        # Si el usuario no puso fecha, usamos la de hoy. Si puso fecha, respetamos la suya.
+        if not sale.sale_date:
+            sale.sale_date = timezone.localdate()
+            
         sale.final_price = self.cleaned_data['lot'].sale_price
         sale.initial_payment = self.cleaned_data['monto_reserva']
         if commit:
@@ -45,6 +50,17 @@ class ReservaForm(forms.ModelForm):
 
 @login_required
 def nueva_reserva(request):
+    # Leemos el ID del lote que viene desde el mapa en la URL
+    lot_id = request.GET.get('lot')
+    initial_data = {}
+    
+    if lot_id:
+        try:
+            lote = Lot.objects.get(pk=lot_id)
+            initial_data['lot'] = lote.id
+        except Lot.DoesNotExist:
+            pass
+
     if request.method == 'POST':
         form = ReservaForm(request.POST)
         if form.is_valid():
@@ -52,7 +68,8 @@ def nueva_reserva(request):
             messages.success(request, "Reserva registrada correctamente. El lote está separado.")
             return redirect('admin:core_sale_changelist')
     else:
-        form = ReservaForm()
+        # Pasamos los datos iniciales al formulario para que aparezca el lote ya seleccionado
+        form = ReservaForm(initial=initial_data)
     
     return render(request, 'core/form_reserva.html', {'form': form})
 
