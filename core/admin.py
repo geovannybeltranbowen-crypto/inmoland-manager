@@ -417,9 +417,18 @@ class InstallmentAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ("sale", "payment_date", "amount", "reference")
-    list_filter = ("payment_date",)
-    search_fields = ("sale__lot__number", "reference")
+    list_display = ("sale", "payment_date", "amount", "reference", "installment")
+    list_filter = ("payment_date", "sale__lot__project")
+    search_fields = ("sale__lot__number", "reference", "sale__client__first_name", "sale__client__last_name")
+    
+    # Aquí le decimos que TODOS los campos se puedan editar
+    fields = ("sale", "installment", "payment_date", "amount", "reference", "notes")
+    
+    # Esto permite que los campos se guarden correctamente al editarlos
+    def get_readonly_fields(self, request, obj=None):
+        # Si el pago ya existe (obj no es None), permitimos editar todo
+        # Si es nuevo, también permitimos editar todo
+        return []
 
 @admin.register(Promise)
 class PromiseAdmin(admin.ModelAdmin):
