@@ -40,7 +40,8 @@
 
         <div>
             {{ form.sale_date.label_tag }}
-            {{ form.sale_date }}
+            <!-- Usamos el campo de Django pero le ponemos un ID para el script -->
+            <input type="date" name="sale_date" id="id_sale_date" required style="width: 100%; padding: 10px 12px; border: 2px solid #999; border-radius: 6px; height: 45px; font-size: 16px;">
         </div>
 
         <div>
@@ -53,4 +54,28 @@
         </button>
     </form>
 </div>
+
+<!-- EL TRUCO MÁGICO -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const dateInput = document.getElementById("id_sale_date");
+        if (dateInput) {
+            // 1. Forzar el tipo de input
+            dateInput.type = "date";
+            
+            // 2. Abrir el calendario al hacer clic
+            dateInput.addEventListener("click", function() {
+                if (this.showPicker) {
+                    this.showPicker();
+                }
+            });
+            
+            // 3. Poner la fecha de hoy por defecto si está vacío
+            if (!dateInput.value) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today; // Puedes cambiarlo a una fecha fija si quieres
+            }
+        }
+    });
+</script>
 {% endblock %}
