@@ -12,6 +12,28 @@
   <div class="card"><div class="sub">Ventas registradas</div><div class="metric">{{ sales_count }}</div></div>
   <div class="card"><div class="sub">Cobros ingresados</div><div class="metric">${{ paid_total|floatformat:2 }}</div></div>
 </div>
+{% if cuotas_vencidas_count > 0 %}
+<div class="card" style="border: 2px solid #a32929; background-color: #fdf2f2; margin-top: 20px;">
+    <div class="sub" style="color: #a32929; font-weight: bold; font-size: 16px;">
+        ⚠️ ¡Atención! Tienes cuotas vencidas por cobrar
+    </div>
+    <div style="display: flex; gap: 40px; margin-top: 15px;">
+        <div>
+            <div class="sub">Cuotas vencidas</div>
+            <div class="metric" style="color: #a32929;">{{ cuotas_vencidas_count }}</div>
+        </div>
+        <div>
+            <div class="sub">Dinero en la calle (Mora)</div>
+            <div class="metric" style="color: #a32929;">${{ saldo_vencido|floatformat:2 }}</div>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <a href="/reportes/mora/" class="btn" style="background: #a32929; text-decoration: none;">
+                Ver reporte de mora
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
 <div class="cards">
   <div class="card"><div class="sub">Comisiones bloqueadas por falta del 50%</div><div class="metric">{{ blocked_commissions }}</div></div>
   <div class="card"><div class="sub">Comisiones habilitadas</div><div class="metric">{{ enabled_commissions }}</div></div>

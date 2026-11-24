@@ -439,3 +439,8 @@ class LegalFeeAdmin(admin.ModelAdmin):
     list_display = ("name", "amount", "active")
     list_filter = ("active",)
     search_fields = ("name",)
+    
+# Actualizar cuotas vencidas automáticamente al entrar al Admin
+def actualizar_cuotas_vencidas():
+    hoy = timezone.localdate()
+    Installment.objects.filter(due_date__lt=hoy, status__in=["pending", "partial"]).update(status="overdue")
