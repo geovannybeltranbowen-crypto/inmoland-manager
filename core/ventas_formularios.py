@@ -17,6 +17,13 @@ class ReservaForm(forms.ModelForm):
         initial=200.00
     )
     
+    # Forzamos el campo de fecha para que sea un calendario visual
+    sale_date = forms.DateField(
+        label="Fecha de la Reserva / Venta",
+        widget=forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
+        input_formats=['%Y-%m-%d']
+    )
+    
     class Meta:
         model = Sale
         fields = ['lot', 'client', 'seller', 'sale_date']
@@ -24,7 +31,7 @@ class ReservaForm(forms.ModelForm):
             'lot': 'Lote a Reservar',
             'client': 'Cliente',
             'seller': 'Vendedor',
-            'sale_date': 'Fecha de la Reserva / Venta',  # <-- Etiqueta bonita
+            'sale_date': 'Fecha de la Reserva / Venta',
         }
 
     def __init__(self, *args, **kwargs):
@@ -36,7 +43,7 @@ class ReservaForm(forms.ModelForm):
         sale.etapa = Sale.Etapa.RESERVA
         sale.sale_type = Sale.SaleType.CASH
         
-        # Si el usuario no puso fecha, usamos la de hoy. Si puso fecha, respetamos la suya.
+        # Si el usuario no puso fecha, usamos la de hoy
         if not sale.sale_date:
             sale.sale_date = timezone.localdate()
             
@@ -47,11 +54,6 @@ class ReservaForm(forms.ModelForm):
             sale.lot.status = Lot.Status.RESERVED
             sale.lot.save()
         return sale
-        sale_date = forms.DateField(
-        label="Fecha de la Reserva / Venta",
-        widget=forms.DateInput(attrs={'type': 'date'}, format='%Y-%m-%d'),
-        input_formats=['%Y-%m-%d']
-    )
 
 @login_required
 def nueva_reserva(request):
