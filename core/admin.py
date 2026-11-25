@@ -354,9 +354,8 @@ class SoloLotesConCuotasFilter(admin.SimpleListFilter):
 @admin.register(Installment)
 class InstallmentAdmin(admin.ModelAdmin):
     list_display = (
-        "sale",
-        "get_lot",
-        "get_client",
+        "get_lote_corto",  # <-- En lugar de "sale", mostramos solo el lote
+        "get_client",      # <-- Ya lo tenías
         "number",
         "due_date",
         "principal_amount",
@@ -367,11 +366,11 @@ class InstallmentAdmin(admin.ModelAdmin):
     )
 
     list_filter = (
-        InstallmentClientFilter,
-        InstallmentLotFilter,
-        "status",
-        "due_date",
-        SoloLotesConCuotasFilter,  # <-- AÑADE ESTA LÍNEA
+        InstallmentClientFilter,  # Se convierte en desplegable automáticamente
+        InstallmentLotFilter,     # Se convierte en desplegable automáticamente
+        "status",                 # Desplegable automático
+        "due_date",               # Desplegable automático
+        SoloLotesConCuotasFilter, # Desplegable automático
     )
 
     search_fields = (
@@ -382,10 +381,9 @@ class InstallmentAdmin(admin.ModelAdmin):
         "sale__client__identification",
     )
 
-   
-
+    # Agregamos esta función para mostrar el lote de forma corta en la primera columna
     @admin.display(description="Lote", ordering="sale__lot__number")
-    def get_lot(self, obj):
+    def get_lote_corto(self, obj):
         return obj.sale.lot.number
 
     @admin.display(description="Cliente", ordering="sale__client__last_name")
