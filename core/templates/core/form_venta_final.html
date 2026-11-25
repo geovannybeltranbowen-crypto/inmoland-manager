@@ -47,20 +47,7 @@
 
     <form method="post">
         {% csrf_token %}
-
-    {% if form.errors %}
-        <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f87171;">
-            <strong>¡Error! El sistema dice:</strong>
-            <ul style="margin-top: 10px; margin-bottom: 0; padding-left: 20px;">
-                {% for field, errors in form.errors.items %}
-                    {% for error in errors %}
-                        <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
-                    {% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-
+        
         <div class="fila-doble">
             <div>
                 {{ form.sale_type.label_tag }} 
@@ -95,7 +82,8 @@
         <div class="fila-doble" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
             <div>
                 {{ form.first_due_date.label_tag }} 
-                {{ form.first_due_date }}
+                <!-- FORZAMOS EL CALENDARIO CON UN ID -->
+                <input type="date" name="first_due_date" id="id_first_due_date" style="width: 100%; padding: 10px 12px; border: 2px solid #999; border-radius: 6px; height: 45px; font-size: 16px;">
                 <small class="texto-ayuda">Fecha de la primera cuota del crédito.</small>
             </div>
             <div>
@@ -128,4 +116,19 @@
         </div>
     </form>
 </div>
+
+<!-- EL SCRIPT MÁGICO PARA EL CALENDARIO -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const dateInput = document.getElementById("id_first_due_date");
+        if (dateInput) {
+            dateInput.type = "date";
+            dateInput.addEventListener("click", function() {
+                if (this.showPicker) {
+                    this.showPicker();
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
