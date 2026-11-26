@@ -42,6 +42,17 @@ def cancelar_credito_action(self, request, queryset):
                 cuota.save(update_fields=["status"])
         self.message_user(request, f"Crédito de la venta {sale.pk} cancelado. Pago de ${saldo_total}.", level=messages.SUCCESS)
 
+    @admin.action(description="Descargar PDF de Reserva / Promesa")
+    def descargar_pdf_reserva(self, request, queryset):
+        if queryset.count() != 1:
+            self.message_user(request, "Por favor, selecciona solo UNA venta para descargar el PDF.", level=messages.WARNING)
+            return
+        
+        venta = queryset.first()
+        url = f"/pdf/reserva/{venta.id}/"
+        from django.http import HttpResponseRedirect
+        return HttpResponseRedirect(url)
+
 admin.site.site_header = "INMOLAND Manager"
 admin.site.site_title = "INMOLAND"
 admin.site.index_title = "Administración de Compra-Venta Bienes INMOLAND"
@@ -236,7 +247,7 @@ class SaleAdmin(admin.ModelAdmin):
         "client__last_name",
         "seller__name",
     )
-    actions = ["generate_installments_action", cancelar_credito_action]
+    actions = ["generate_installments_action", cancelar_credito_action, "descargar_pdf_reserva"]
     inlines = [PaymentInline, InstallmentInline]
 
     
@@ -295,7 +306,7 @@ class SaleAdmin(admin.ModelAdmin):
                 lot.status = Lot.Status.CREDIT
 
             lot.save(update_fields=["status"])
-            
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
         # Agregamos la URL del PDF al contexto del admin
