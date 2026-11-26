@@ -88,3 +88,35 @@ def generar_pdf_minuta(request, sale_id):
     if pisa_status.err:
         return HttpResponse('Error al generar el PDF', status=500)
     return response
+
+def generar_pdf_recibo(request, payment_id):
+    from .models import Payment
+    pago = get_object_or_404(Payment, pk=payment_id)
+    sale = pago.sale
+    client = sale.client
+    lot = sale.lot
+    
+    # Obtenemos todas las cuotas de la venta ordenadas
+    cuotas = sale.installments.all().order_by('number')
+    
+    concepto_cuotas = "ABONO"
+    if pago.installment:
+        concepto_cuotas = f"CUOTA {pago.installment.number}"
+    
+    context = {
+        'pago': pago,
+        'sale': sale,
+        'client': client,
+        'lot': lot,
+        'cuotas': cuotas,
+        'concepto_cuotas': concepto_cuotas,
+    }
+    
+    html_string = render_to_string('core/pdf_recibo.html', context)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Recibo_{client.last_name}_{pago.id}.pdf"'
+    pisa_status = pisa.CreatePDF(html_string, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=500)
+    return response
