@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page { size: A4; margin: 1cm; }
+        body { font-family: Arial, sans-serif; font-size: 11px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: left; }
+        .header { background-color: #f0f0f0; font-weight: bold; text-align: center; }
+        .texto-legal { font-size: 9px; text-align: justify; margin-top: 20px; line-height: 1.2; }
+        .firma { margin-top: 40px; text-align: center; border-top: 1px solid #000; width: 50%; margin-left: auto; margin-right: auto; }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align: center;">FICHA DE CLIENTE</h2>
+    <table>
+        <tr>
+            <td colspan="2" class="header">N° LOTE: {{ lot.number }}</td>
+            <td colspan="2" class="header">FECHA RESERVA: {{ sale.sale_date|date:"d/m/Y" }}</td>
+        </tr>
+        <tr>
+            <td colspan="4" class="header">DATOS PERSONALES DEL TITULAR</td>
+        </tr>
+        <tr>
+            <td colspan="2">APELLIDOS: {{ client.last_name }}</td>
+            <td colspan="2">NOMBRES: {{ client.first_name }}</td>
+        </tr>
+        <tr>
+            <td>C.I.: {{ client.identification }}</td>
+            <td>ESTADO CIVIL: {{ client.marital_status }}</td>
+            <td colspan="2">EDAD: ............</td>
+        </tr>
+        <tr>
+            <td colspan="2">OCUPACIÓN: {{ client.occupation }}</td>
+            <td colspan="2">CELULAR: {{ client.phone }}</td>
+        </tr>
+        <tr>
+            <td colspan="2">CORREO ELECTRÓNICO: {{ client.email }}</td>
+            <td colspan="2">PAÍS: {{ client.nationality }}</td>
+        </tr>
+        <tr>
+            <td colspan="4">DIRECCIÓN DOMICILIO: {{ client.address }}</td>
+        </tr>
+        <tr>
+            <td colspan="2">PROVINCIA: {{ client.province }}</td>
+            <td>CIUDAD: {{ client.city }}</td>
+            <td>PARROQUIA: {{ client.parish }}</td>
+        </tr>
+        <tr>
+            <td colspan="2">CALLE PRINCIPAL: {{ client.main_street }}</td>
+            <td>CALLE SECUNDARIA: {{ client.secondary_street }}</td>
+            <td>N° CASA: {{ client.house_number }}</td>
+        </tr>
+        
+        <tr>
+            <td colspan="4" class="header">DATOS PERSONALES DEL CÓNYUGE</td>
+        </tr>
+        <tr>
+            <td colspan="2">APELLIDOS Y NOMBRES: {{ client.spouse_name }}</td>
+            <td colspan="2">C.I.: {{ client.spouse_id }}</td>
+        </tr>
+        <tr>
+            <td colspan="2">CELULAR: {{ client.spouse_phone }}</td>
+            <td colspan="2">EDAD: ............</td>
+        </tr>
+
+        <tr>
+            <td colspan="4" class="header">FORMAS DE PAGO</td>
+        </tr>
+        <tr>
+            <td>VALOR TERRENO: ${{ lot.sale_price }}</td>
+            <td>VENTA TERRENO: ${{ sale.final_price }}</td>
+            <td colspan="2">ÁREA TOTAL DEL TERRENO: {{ lot.area_m2 }} m²</td>
+        </tr>
+        <tr>
+            <td>CONTADO: {% if sale.sale_type == 'cash' %} X {% endif %}</td>
+            <td>FINANCIADO: {% if sale.sale_type == 'credit' %} X {% endif %}</td>
+            <td>VENDEDOR: {{ sale.seller.name }}</td>
+            <td>PROYECTO: {{ lot.project.name }}</td>
+        </tr>
+        <tr>
+            <td>RESERVA: ${{ sale.initial_payment }}</td>
+            <td colspan="3">FECHA FIRMA PROMESA: ............</td>
+        </tr>
+        <tr>
+            <td>ENTRADA: $............</td>
+            <td colspan="3">DIFERENCIA ENTRADA: $............</td>
+        </tr>
+        <tr>
+            <td>N° CUOTAS: {{ sale.credit_months }}</td>
+            <td colspan="3">PAGO MENSUAL: $............</td>
+        </tr>
+        <tr>
+            <td>FECHA INICIO: {{ sale.first_due_date|date:"d/m/Y" }}</td>
+            <td colspan="3">FECHA FIN: ............</td>
+        </tr>
+        <tr>
+            <td colspan="4">OBSERVACIONES: {{ sale.notes }}</td>
+        </tr>
+    </table>
+
+    <div class="texto-legal">
+        El cliente dispone de un plazo de tres (3) días calendario, contados a partir de la firma del presente documento, para desistir de la compra. En caso de ejercer este derecho dentro del plazo establecido, se procederá a la devolución integral del valor entregado en concepto de reserva. Transcurrido dicho plazo sin manifestación expresa de desistimiento por parte del cliente, la reserva se considerará definitiva y no será objeto de reembolso, aun cuando no se concrete la compra. Los pagos deberán realizarse mediante transferencias o depósitos bancarios a la cuenta de INMO LAND. No se aceptan pagos en efectivo, conforme a las políticas de la empresa.
+    </div>
+
+    <div class="firma">
+        FIRMA PROPIETARIO
+    </div>
+
+</body>
+</html>

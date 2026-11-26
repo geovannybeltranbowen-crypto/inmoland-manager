@@ -11,6 +11,7 @@ from core.ventas_views import lista_ventas
 from core.pagos_views import registrar_pago_cuota, anular_pago
 from core.importar_clientes_views import importar_clientes
 from core.ventas_formularios import nueva_reserva, registrar_venta_final, desistir_reserva
+from core.reportes_pdf_views import generar_pdf_reserva
 from core.reportes_views import (
     index as reportes_index,
     cartera as reporte_cartera,
@@ -70,6 +71,7 @@ urlpatterns = [
     path("nueva-reserva/", nueva_reserva, name="nueva_reserva"),
     path("venta-final/<int:lot_id>/", registrar_venta_final, name="registrar_venta_final"),
     path("desistir-reserva/<int:lot_id>/", desistir_reserva, name="desistir_reserva"),
+    path("pdf/reserva/<int:sale_id>/", generar_pdf_reserva, name="pdf_reserva"),
 ]
 
 if settings.DEBUG:
