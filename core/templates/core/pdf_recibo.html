@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page { size: A4; margin: 1cm; }
+        body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
+        
+        /* Estilos del Recibo (Primera Parte) */
+        .recibo-header { text-align: center; margin-bottom: 20px; }
+        .recibo-header h1 { font-size: 20px; margin: 0; }
+        .recibo-info { margin-bottom: 15px; }
+        .recibo-info table { width: 100%; border-collapse: collapse; }
+        .recibo-info td { padding: 5px; border: 1px solid #ccc; }
+        .recibo-info .label { font-weight: bold; width: 150px; background: #f9f9f9; }
+        .recibo-texto { margin: 15px 0; font-size: 12px; }
+        .recibo-firmas { margin-top: 40px; display: flex; justify-content: space-between; }
+        .firma-box { width: 45%; border-top: 1px solid #000; text-align: center; padding-top: 5px; font-size: 10px; }
+        .nota-pie { font-size: 9px; color: #666; margin-top: 20px; text-align: center; }
+
+        /* Estilos de la Tabla de Amortización (Segunda Parte) */
+        .page-break { page-break-before: always; }
+        .amortizacion-header { text-align: center; margin-bottom: 20px; }
+        .amortizacion-header h2 { font-size: 16px; }
+        .tabla-amortizacion { width: 100%; border-collapse: collapse; font-size: 10px; }
+        .tabla-amortizacion th, .tabla-amortizacion td { border: 1px solid #000; padding: 4px; text-align: center; }
+        .tabla-amortizacion th { background: #f0f0f0; font-weight: bold; }
+        .pagado { background: #d4edda; color: #155724; }
+        .pendiente { background: #fff3cd; color: #856404; }
+        .footer { text-align: center; font-size: 9px; margin-top: 20px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <!-- ================= RECIBO ================= -->
+    <div class="recibo-header">
+        <h1>RECIBO DE PAGO</h1>
+        <p><strong>Recibo No.:</strong> {{ pago.id|stringformat:"06d" }} | <strong>Fecha:</strong> {{ pago.payment_date|date:"d / m / Y" }}</p>
+    </div>
+
+    <div class="recibo-info">
+        <table>
+            <tr>
+                <td class="label">RECIBIMOS DE:</td>
+                <td colspan="3">{{ client.first_name }} {{ client.last_name }}</td>
+            </tr>
+            <tr>
+                <td class="label">CÉDULA/RUC:</td>
+                <td>{{ client.identification }}</td>
+                <td class="label">TELÉFONO:</td>
+                <td>{{ client.phone }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="recibo-texto">
+        <p><strong>La cantidad de:</strong> USD ${{ pago.amount }} ({{ pago.amount|floatformat:2 }} dólares de los Estados Unidos de América).</p>
+        <p><strong>Por concepto de:</strong> {{ concepto_cuotas }} correspondiente a la adquisición del siguiente terreno/lote:</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <tr>
+                <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold; width: 150px;">Proyecto / Urbanización</td>
+                <td style="border: 1px solid #ccc; padding: 5px;">{{ lot.project.name }}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">Lote No.</td>
+                <td style="border: 1px solid #ccc; padding: 5px;">{{ lot.number }}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">VALOR PAGADO</td>
+                <td style="border: 1px solid #ccc; padding: 5px;">USD ${{ pago.amount }}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">FORMA DE PAGO:</td>
+                <td style="border: 1px solid #ccc; padding: 5px;">TRANSFERENCIA / DEPÓSITO</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">DETALLE / REFERENCIA:</td>
+                <td style="border: 1px solid #ccc; padding: 5px;">{{ pago.reference }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <p style="font-size: 10px; margin-top: 15px;">
+        <strong>CONSTANCIA:</strong> El presente documento deja constancia exclusivamente del valor efectivamente recibido en concepto de pago a cuenta del terreno identificado. La reserva y sus condiciones se sujetan al documento de reserva y/o contrato suscrito entre las partes.
+    </p>
+
+    <div class="recibo-firmas">
+        <div class="firma-box">
+            FIRMA Y NOMBRE DEL RECEPTOR<br>INMOLAND
+        </div>
+        <div class="firma-box">
+            FIRMA DEL CLIENTE<br>{{ client.first_name }} {{ client.last_name }}
+        </div>
+    </div>
+
+    <div class="nota-pie">
+        Documento de constancia de pago • Conservar junto con el contrato de reserva
+    </div>
+
+    <!-- ================= TABLA DE AMORTIZACIÓN ================= -->
+    <div class="page-break"></div>
+    
+    <div class="amortizacion-header">
+        <h2>TABLA DE AMORTIZACIÓN</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+            <tr>
+                <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold; width: 100px;">CLIENTE</td>
+                <td style="border: 1px solid #ccc; padding: 5px;">{{ client.first_name }} {{ client.last_name }}</td>
+                <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold; width: 80px;">LOTE</td>
+                <td style="border: 1px solid #ccc; padding: 5px;">{{ lot.number }}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">PRECIO</td>
+                <td style="border: 1px solid #ccc; padding: 5px;">${{ sale.final_price }}</td>
+                <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">ABONO</td>
+                <td style="border: 1px solid #ccc; padding: 5px;">${{ sale.initial_payment }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="tabla-amortizacion">
+        <thead>
+            <tr>
+                <th>CUOTA</th>
+                <th>FECHA VENCIMIENTO</th>
+                <th>VALOR CUOTA</th>
+                <th>SALDO</th>
+                <th>OBSERVACIONES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in cuotas %}
+            <tr>
+                <td>{{ c.number }}</td>
+                <td>{{ c.due_date|date:"d/m/Y" }}</td>
+                <td>${{ c.amount|floatformat:2 }}</td>
+                <td>
+                    <!-- Aquí podrías calcular el saldo real, por ahora mostramos el monto de la cuota -->
+                    ${{ c.amount|floatformat:2 }}
+                </td>
+                <td class="{% if c.status == 'paid' %}pagado{% else %}pendiente{% endif %}">
+                    {{ c.get_status_display|upper }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Av. Huancavilca y Ríos, Santa Isabel, Valle de los Chillos<br>
+        inmoinmoland@gmail.com | 098 337 9047 - 095 872 3796
+    </div>
+
+</body>
+</html>

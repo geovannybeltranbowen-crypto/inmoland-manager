@@ -457,7 +457,7 @@ class InstallmentAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ("sale", "payment_date", "amount", "reference", "installment")
+    list_display = ("sale", "payment_date", "amount", "reference", "ver_recibo")
     list_filter = ("payment_date", "sale__lot__project")
     search_fields = ("sale__lot__number", "reference", "sale__client__first_name", "sale__client__last_name")
     
@@ -469,6 +469,14 @@ class PaymentAdmin(admin.ModelAdmin):
         # Si el pago ya existe (obj no es None), permitimos editar todo
         # Si es nuevo, también permitimos editar todo
         return []
+    @admin.display(description="Recibo")
+    def ver_recibo(self, obj):
+        from django.utils.html import format_html
+        url = f"/pdf/recibo/{obj.id}/"
+        return format_html(
+            '<a class="button" style="background:#16a34a; color:white; padding:6px 12px; border-radius:5px; text-decoration:none; font-weight:bold;" href="{}" target="_blank">🧾 Recibo</a>',
+            url
+        )
 
 @admin.register(Promise)
 class PromiseAdmin(admin.ModelAdmin):
