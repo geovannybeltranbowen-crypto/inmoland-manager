@@ -252,6 +252,13 @@ class SaleAdmin(admin.ModelAdmin):
     actions = ["generate_installments_action", cancelar_credito_action, "descargar_pdf_reserva"]
     inlines = [PaymentInline, InstallmentInline]
 
+    @admin.display(description="PDF Reserva")
+    def ver_pdf(self, obj):
+        from django.utils.html import format_html
+        return format_html(
+            '<a class="button" style="background:#2157a5; color:white; padding:4px 8px; border-radius:4px; text-decoration:none;" href="/pdf/reserva/{}/" target="_blank">📄 Ver</a>',
+            obj.id
+        )
     
     @admin.action(description="Generar calendario de cuotas (Limpiando anteriores)")
     def generate_installments_action(self, request, queryset):
@@ -321,6 +328,14 @@ class SaleAdmin(admin.ModelAdmin):
             from django.http import HttpResponseRedirect
             return HttpResponseRedirect(f"/pdf/reserva/{obj.id}/")
         return super().response_change(request, obj)
+    
+    @admin.display(description="PDF Reserva")
+    def ver_pdf(self, obj):
+        from django.utils.html import format_html
+        return format_html(
+            '<a class="button" style="background:#2157a5; color:white; padding:4px 8px; border-radius:4px; text-decoration:none;" href="/pdf/reserva/{}/" target="_blank">📄 Ver</a>',
+            obj.id
+        )
 
 class InstallmentClientFilter(admin.SimpleListFilter):
     title = "Por cliente"
