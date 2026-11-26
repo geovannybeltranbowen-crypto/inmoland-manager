@@ -237,7 +237,9 @@ class SaleAdmin(admin.ModelAdmin):
             fields = [f for f in fields if f not in campos_ocultos]
         return fields
 
-    list_display = ("lot", "client", "seller", "sale_type", "sale_date", "final_price")
+    list_display = (
+        "lot", "client", "seller", "sale_type", "sale_date", "final_price", "ver_pdf"
+    )
     list_filter = ("lot__project", "lot__status")
     search_fields = (
         "lot__number",
@@ -312,6 +314,13 @@ class SaleAdmin(admin.ModelAdmin):
         # Agregamos la URL del PDF al contexto del admin
         extra_context['pdf_reserva_url'] = f"/pdf/reserva/{object_id}/"
         return super().change_view(request, object_id, form_url, extra_context)
+    
+    def response_change(self, request, obj):
+        # Si el usuario pulsa el botón "Descargar PDF"
+        if "_descargar_pdf" in request.POST:
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect(f"/pdf/reserva/{obj.id}/")
+        return super().response_change(request, obj)
 
 class InstallmentClientFilter(admin.SimpleListFilter):
     title = "Por cliente"
@@ -459,3 +468,6 @@ class LegalFeeAdmin(admin.ModelAdmin):
 def actualizar_cuotas_vencidas():
     hoy = timezone.localdate()
     Installment.objects.filter(due_date__lt=hoy, status__in=["pending", "partial"]).update(status="overdue")
+
+class Media:
+        js = ('admin/js/pdf_button.js',)
