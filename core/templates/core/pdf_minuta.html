@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page { size: A4; margin: 2.5cm; }
+        body { font-family: "Times New Roman", Times, serif; font-size: 12px; text-align: justify; line-height: 1.5; }
+        h2 { text-align: center; }
+        .negrita { font-weight: bold; }
+        .firma { margin-top: 50px; text-align: center; }
+        .firma-linea { border-top: 1px solid #000; width: 300px; margin: 0 auto; padding-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <h2>SEÑOR NOTARIO</h2>
+    <p>
+        En el protocolo de escrituras públicas a su cargo, sírvase hacer constar una más de promesa de compraventa al tenor de las cláusulas que siguen:
+    </p>
+
+    <p>
+        <span class="negrita">PRIMERA: COMPARECIENTES. -</span> Comparecen a la celebración del presente contrato de manera libre, voluntaria y por así convenir a sus intereses, por una parte y en calidad de <span class="negrita">PROMITENTE VENDEDORA</span>, la señora <span class="negrita">{{ seller.name|upper }}</span>, de nacionalidad ecuatoriana, con cédula de ciudadanía número <span class="negrita">{{ seller.identification|default:"________" }}</span>, de estado civil <span class="negrita">{{ seller.marital_status|default:"________" }}</span>; domiciliada en <span class="negrita">{{ seller.address|default:"________" }}</span>; correo electrónico <span class="negrita">{{ seller.email|default:"________" }}</span> y número de teléfono <span class="negrita">{{ seller.phone|default:"________" }}</span>, por sus propios derechos y, por otra parte, y en calidad de <span class="negrita">PROMITENTE COMPRADORA</span>, la señora <span class="negrita">{{ client.first_name|upper }} {{ client.last_name|upper }}</span>, de estado civil <span class="negrita">{{ client.marital_status|default:"________" }}</span>, de nacionalidad <span class="negrita">{{ client.nationality|default:"ecuatoriana" }}</span>, con cédula de ciudadanía número <span class="negrita">{{ client.identification }}</span>; domiciliada en <span class="negrita">{{ client.address|default:"________" }}</span>, con número de teléfono <span class="negrita">{{ client.phone|default:"________" }}</span>, correo electrónico: <span class="negrita">{{ client.email|default:"________" }}</span>, por sus propios derechos. Los comparecientes son hábiles para contratar y obligarse.
+    </p>
+
+    <p>
+        <span class="negrita">SEGUNDA: ANTECEDENTES. –</span> A) La vendedora señora <span class="negrita">{{ seller.name|upper }}</span>, es propietaria de los DERECHOS Y ACCIONES SOBRANTES del lote de terreno situado en la parroquia <span class="negrita">{{ lot.project.location|default:"________" }}</span>, Adquirido mediante COMPRA según escritura otorgada ante la NOTARÍA <span class="negrita">{{ sale.notary|default:"________" }}</span> con fecha <span class="negrita">{{ sale.sale_date|date:"d \d\e F \d\e Y" }}</span>. 
+        B) Los linderos generales del lote de terreno están delimitados por los siguientes linderos: por el NORTE: {{ lot.north_boundary|default:"________" }}; por el SUR: {{ lot.south_boundary|default:"________" }}; por el ESTE: {{ lot.east_boundary|default:"________" }}; y, por el OESTE: {{ lot.west_boundary|default:"________" }}. La superficie del lote de terreno es de <span class="negrita">{{ lot.area_m2 }} METROS CUADRADOS.</span>
+    </p>
+
+    <p>
+        <span class="negrita">CLÁUSULA TERCERA: - PROMESA DE COMPRAVENTA. -</span> Con estos antecedentes, la PROMITENTE VENDEDORA; promete vender y dar en perpetua enajenación a favor de la parte PROMITENTE COMPRADORA, el <span class="negrita">{{ porcentaje }}</span> de derechos y acciones fincados en los DERECHOS Y ACCIONES SOBRANTES del lote de terreno situado en la parroquia <span class="negrita">{{ lot.project.location|default:"________" }}</span>, lote denominado en el proyecto <span class="negrita">{{ lot.project.name }}</span>, como <span class="negrita">LOTE {{ lot.number }}</span>.
+    </p>
+
+    <p>
+        <span class="negrita">CLÁUSULA CUARTA. - PRECIO: -</span> El precio que las partes fijan como justo para la compraventa de los derechos y acciones detallados es el siguiente: el valor de <span class="negrita">${{ sale.final_price }}</span>, que la PROMITENTE VENDEDORA, acepta que se cancele de la siguiente manera:
+    </p>
+    <p>
+        - El valor de <span class="negrita">${{ sale.initial_payment }}</span> mediante depósito bancario o transferencia con fecha <span class="negrita">{{ sale.sale_date|date:"d \d\e F \d\e Y" }}</span>.
+    </p>
+    <p>
+        - El saldo, es decir, <span class="negrita">${{ saldo_financiado }}</span> en cuotas mensuales de <span class="negrita">${{ sale.installments.first.amount|default:"________" }}</span>, pagaderos mediante transferencia bancaria a la cuenta del Pichincha número <span class="negrita">2207652893</span> a nombre de <span class="negrita">Génesis Moya</span>, los primeros cinco días de cada mes, por <span class="negrita">{{ sale.credit_months }} meses consecutivos</span>, empezando desde el <span class="negrita">{{ sale.first_due_date|date:"d \d\e F \d\e Y" }}</span>.
+    </p>
+
+    <p>
+        <span class="negrita">CLÁUSULA QUINTA. - LINDEROS Y DIMENSIONES SINGULARES. -</span> La parte promitente compradora conoce y acepta los derechos y acciones que está adquiriendo, además declara y se compromete en respetar los linderos singulares y dimensiones para futuras particiones conforme se detalla a continuación:
+    </p>
+    <p>
+        Para efectos de identificación comercial y futura partición o individualización, el denominado Lote {{ lot.number }} tiene los siguientes linderos singulares:
+        Por el NORTE: {{ lot.north_boundary|default:"________" }}; por el SUR: {{ lot.south_boundary|default:"________" }}; por el ESTE: {{ lot.east_boundary|default:"________" }} y por el OESTE: {{ lot.west_boundary|default:"________" }}. La superficie es de <span class="negrita">{{ lot.area_m2 }} m2.</span>
+    </p>
+
+    <!-- Puedes seguir agregando las demás cláusulas (Sexta a Décima Primera) con el texto de tu minuta original. -->
+
+    <p>
+        Usted, señor Notario, se dignará insertar las demás cláusulas de estilo para la validez y eficacia de esta escritura pública.
+    </p>
+
+    <div class="firma">
+        <br><br>
+        <div class="firma-linea">Dr. Fernando Robalino Silva</div>
+        <div>MAT. 6163 CAP</div>
+    </div>
+
+</body>
+</html>

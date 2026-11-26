@@ -94,6 +94,10 @@ class Client(models.Model):
     spouse_name = models.CharField("Nombre del Cónyuge", max_length=200, blank=True)
     spouse_id = models.CharField("C.I. Cónyuge", max_length=20, blank=True)
     spouse_phone = models.CharField("Celular Cónyuge", max_length=30, blank=True)
+    # ... (campos anteriores)
+    # Datos para la minuta
+    spouse_marital_status = models.CharField("Estado civil del cónyuge", max_length=50, blank=True)
+    spouse_nationality = models.CharField("Nacionalidad del cónyuge", max_length=50, blank=True)
 
     class Meta:
         ordering = ["last_name", "first_name"]

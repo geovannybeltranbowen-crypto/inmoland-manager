@@ -238,7 +238,7 @@ class SaleAdmin(admin.ModelAdmin):
         return fields
 
     list_display = (
-        "lot", "client", "seller", "sale_type", "sale_date", "final_price", "ver_pdf"
+    "lot", "client", "seller", "sale_type", "sale_date", "final_price", "ver_pdf", "ver_minuta"
     )
     list_filter = ("lot__project", "lot__status")
     search_fields = (
@@ -259,6 +259,15 @@ class SaleAdmin(admin.ModelAdmin):
             '<a class="button" style="background:#2157a5; color:white; padding:4px 8px; border-radius:4px; text-decoration:none;" href="/pdf/reserva/{}/" target="_blank">📄 Ver</a>',
             obj.id
         )
+
+    @admin.display(description="Minuta")
+    def ver_minuta(self, obj):
+        from django.utils.html import format_html
+        url = f"/pdf/minuta/{obj.id}/"
+        return format_html(
+            '<a class="button" style="background:#a32929; color:white; padding:6px 12px; border-radius:5px; text-decoration:none; font-weight:bold;" href="{}" target="_blank">📄 Minuta</a>',
+        url
+    )
     
     @admin.action(description="Generar calendario de cuotas (Limpiando anteriores)")
     def generate_installments_action(self, request, queryset):
