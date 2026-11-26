@@ -1,0 +1,12 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    {% if pdf_reserva_url %}
+        <li>
+            <a href="{{ pdf_reserva_url }}" target="_blank" style="background: #2157a5 !important; color: white !important;">
+                📄 Descargar Ficha de Reserva
+            </a>
+        </li>
+    {% endif %}
+{% endblock %}

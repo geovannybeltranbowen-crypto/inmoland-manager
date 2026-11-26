@@ -295,6 +295,12 @@ class SaleAdmin(admin.ModelAdmin):
                 lot.status = Lot.Status.CREDIT
 
             lot.save(update_fields=["status"])
+            
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        # Agregamos la URL del PDF al contexto del admin
+        extra_context['pdf_reserva_url'] = f"/pdf/reserva/{object_id}/"
+        return super().change_view(request, object_id, form_url, extra_context)
 
 class InstallmentClientFilter(admin.SimpleListFilter):
     title = "Por cliente"
