@@ -3,17 +3,19 @@
 <head>
     <style>
         @page { size: A4; margin: 1cm; }
-        body { font-family: Arial, sans-serif; font-size: 11px; }
+        body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-        th, td { border: 1px solid #000; padding: 4px; text-align: left; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: left; vertical-align: top; }
         .header { background-color: #f0f0f0; font-weight: bold; text-align: center; }
         .texto-legal { font-size: 9px; text-align: justify; margin-top: 20px; line-height: 1.2; }
-        .firma { margin-top: 40px; text-align: center; border-top: 1px solid #000; width: 50%; margin-left: auto; margin-right: auto; }
+        .firma { margin-top: 50px; text-align: center; border-top: 1px solid #000; width: 50%; margin-left: auto; margin-right: auto; padding-top: 5px; }
+        .no-border { border: none !important; }
     </style>
 </head>
 <body>
 
     <h2 style="text-align: center;">FICHA DE CLIENTE</h2>
+    
     <table>
         <tr>
             <td colspan="2" class="header">N° LOTE: {{ lot.number }}</td>
@@ -23,46 +25,46 @@
             <td colspan="4" class="header">DATOS PERSONALES DEL TITULAR</td>
         </tr>
         <tr>
-            <td colspan="2">APELLIDOS: {{ client.last_name }}</td>
-            <td colspan="2">NOMBRES: {{ client.first_name }}</td>
+            <td colspan="2">APELLIDOS: <strong>{{ client.last_name }}</strong></td>
+            <td colspan="2">NOMBRES: <strong>{{ client.first_name }}</strong></td>
         </tr>
         <tr>
-            <td>C.I.: {{ client.identification }}</td>
-            <td>ESTADO CIVIL: {{ client.marital_status }}</td>
-            <td colspan="2">EDAD: ............</td>
+            <td>C.I.: <strong>{{ client.identification }}</strong></td>
+            <td>ESTADO CIVIL: <strong>{{ client.marital_status|default:"" }}</strong></td>
+            <td colspan="2">EDAD: <strong>{{ client.age|default:"" }}</strong></td>
         </tr>
         <tr>
-            <td colspan="2">OCUPACIÓN: {{ client.occupation }}</td>
-            <td colspan="2">CELULAR: {{ client.phone }}</td>
+            <td colspan="2">OCUPACIÓN: <strong>{{ client.occupation|default:"" }}</strong></td>
+            <td colspan="2">CELULAR: <strong>{{ client.phone }}</strong></td>
         </tr>
         <tr>
-            <td colspan="2">CORREO ELECTRÓNICO: {{ client.email }}</td>
-            <td colspan="2">PAÍS: {{ client.nationality }}</td>
+            <td colspan="2">CORREO ELECTRÓNICO: <strong>{{ client.email }}</strong></td>
+            <td colspan="2">PAÍS: <strong>{{ client.nationality|default:"" }}</strong></td>
         </tr>
         <tr>
-            <td colspan="4">DIRECCIÓN DOMICILIO: {{ client.address }}</td>
+            <td colspan="4">DIRECCIÓN DOMICILIO: <strong>{{ client.address|default:"" }}</strong></td>
         </tr>
         <tr>
-            <td colspan="2">PROVINCIA: {{ client.province }}</td>
-            <td>CIUDAD: {{ client.city }}</td>
-            <td>PARROQUIA: {{ client.parish }}</td>
+            <td colspan="2">PROVINCIA: <strong>{{ client.province|default:"" }}</strong></td>
+            <td>CIUDAD: <strong>{{ client.city|default:"" }}</strong></td>
+            <td>PARROQUIA: <strong>{{ client.parish|default:"" }}</strong></td>
         </tr>
         <tr>
-            <td colspan="2">CALLE PRINCIPAL: {{ client.main_street }}</td>
-            <td>CALLE SECUNDARIA: {{ client.secondary_street }}</td>
-            <td>N° CASA: {{ client.house_number }}</td>
+            <td colspan="2">CALLE PRINCIPAL: <strong>{{ client.main_street|default:"" }}</strong></td>
+            <td>CALLE SECUNDARIA: <strong>{{ client.secondary_street|default:"" }}</strong></td>
+            <td>N° CASA: <strong>{{ client.house_number|default:"" }}</strong></td>
         </tr>
         
         <tr>
             <td colspan="4" class="header">DATOS PERSONALES DEL CÓNYUGE</td>
         </tr>
         <tr>
-            <td colspan="2">APELLIDOS Y NOMBRES: {{ client.spouse_name }}</td>
-            <td colspan="2">C.I.: {{ client.spouse_id }}</td>
+            <td colspan="2">APELLIDOS Y NOMBRES: <strong>{{ client.spouse_name|default:"" }}</strong></td>
+            <td colspan="2">C.I.: <strong>{{ client.spouse_id|default:"" }}</strong></td>
         </tr>
         <tr>
-            <td colspan="2">CELULAR: {{ client.spouse_phone }}</td>
-            <td colspan="2">EDAD: ............</td>
+            <td colspan="2">CELULAR: <strong>{{ client.spouse_phone|default:"" }}</strong></td>
+            <td colspan="2">EDAD: <strong>{{ client.spouse_age|default:"" }}</strong></td>
         </tr>
 
         <tr>
@@ -74,8 +76,8 @@
             <td colspan="2">ÁREA TOTAL DEL TERRENO: {{ lot.area_m2 }} m²</td>
         </tr>
         <tr>
-            <td>CONTADO: {% if sale.sale_type == 'cash' %} X {% endif %}</td>
-            <td>FINANCIADO: {% if sale.sale_type == 'credit' %} X {% endif %}</td>
+            <td>CONTADO: {% if sale.sale_type == 'cash' %} <strong>X</strong> {% endif %}</td>
+            <td>FINANCIADO: {% if sale.sale_type == 'credit' %} <strong>X</strong> {% endif %}</td>
             <td>VENDEDOR: {{ sale.seller.name }}</td>
             <td>PROYECTO: {{ lot.project.name }}</td>
         </tr>
@@ -92,7 +94,7 @@
             <td colspan="3">PAGO MENSUAL: $............</td>
         </tr>
         <tr>
-            <td>FECHA INICIO: {{ sale.first_due_date|date:"d/m/Y" }}</td>
+            <td>FECHA INICIO: {{ sale.first_due_date|date:"d/m/Y"|default:"" }}</td>
             <td colspan="3">FECHA FIN: ............</td>
         </tr>
         <tr>

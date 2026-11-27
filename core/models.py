@@ -79,8 +79,8 @@ class Client(models.Model):
     notes = models.TextField("Notas", blank=True)
         # Campos para la ficha de reserva
     marital_status = models.CharField("Estado Civil", max_length=50, blank=True)
+    age = models.PositiveIntegerField("Edad", null=True, blank=True)
     occupation = models.CharField("Ocupación", max_length=100, blank=True)
-    monthly_income = models.DecimalField("Ingreso Mensual", max_digits=12, decimal_places=2, null=True, blank=True)
     nationality = models.CharField("Nacionalidad", max_length=50, blank=True)
     address = models.CharField("Dirección Domicilio", max_length=200, blank=True)
     province = models.CharField("Provincia", max_length=50, blank=True)
@@ -90,10 +90,12 @@ class Client(models.Model):
     main_street = models.CharField("Calle Principal", max_length=100, blank=True)
     secondary_street = models.CharField("Calle Secundaria", max_length=100, blank=True)
     house_number = models.CharField("N° Casa", max_length=20, blank=True)
+    monthly_income = models.DecimalField("Ingreso Mensual", max_digits=12, decimal_places=2, null=True, blank=True)
     # Datos del cónyuge
     spouse_name = models.CharField("Nombre del Cónyuge", max_length=200, blank=True)
     spouse_id = models.CharField("C.I. Cónyuge", max_length=20, blank=True)
     spouse_phone = models.CharField("Celular Cónyuge", max_length=30, blank=True)
+    spouse_age = models.PositiveIntegerField("Edad Cónyuge", null=True, blank=True)
     # ... (campos anteriores)
     # Datos para la minuta
     spouse_marital_status = models.CharField("Estado civil del cónyuge", max_length=50, blank=True)
